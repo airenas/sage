@@ -6,6 +6,7 @@ import threading
 from sage.api.data import Data, DataType
 from sage.bot import CalculatorBot
 from sage.cfg.grammar import Calculator
+from sage.cfg.parser import ResultParser
 from sage.io.terminal import TerminalInput, TerminalOutput
 from sage.io.voice import VoiceOutput
 from sage.logger import logger
@@ -59,7 +60,8 @@ def main(param):
     def out_func(d: Data):
         runner.add_output(d)
 
-    runner = Runner(bot=CalculatorBot(out_func=out_func, cfg=Calculator(file="data/calc/grammar.cfg")))
+    runner = Runner(
+        bot=CalculatorBot(out_func=out_func, cfg=Calculator(file="data/calc/grammar.cfg"), parser=ResultParser()))
 
     def in_func(d: Data):
         runner.add_input(d)
