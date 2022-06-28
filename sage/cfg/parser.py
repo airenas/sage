@@ -12,7 +12,10 @@ class ParseError(Exception):
 
 class UnknownLeave(ParseError):
     """Raised when the leave is undefined"""
-    pass
+
+    def __init__(self, string):
+        self.message = "Unknown `%s`" % string
+        self.string = string
 
 
 class UnknownOperation(ParseError):
@@ -93,18 +96,20 @@ def getNodes(parent, deep):
 def init_leaves() -> dict:
     res = dict()
     res['vienas'] = 1
-    add_to_dict(res, ['du', 'dviejų'], 2)
+    add_to_dict(res, ['du', 'dviejų', 'dvi'], 2)
     res['trys'] = 3
-    res['keturi'] = 4
-    res['penki'] = 5
+    add_to_dict(res, ['keturi', 'ketvirtosios'], 4)
+    add_to_dict(res, ['penki', 'penktosios'], 5)
     res['šeši'] = 6
     res['septyni'] = 7
     res['aštuoni'] = 8
     res['devyni'] = 9
     res['dešimt'] = 10
     res['dvidešimt'] = 20
-    res['šimtai'] = 100
-    add_to_dict(res, ["plius", "minus", "kart", "padalint", "iš"], 0)
+    add_to_dict(res, ["plius", "minus", "kart", "padalint", "iš", "kablelis"], 0)
+    add_to_dict(res, ["šimtas", "šimtai"], 100)
+    add_to_dict(res, ["tūkstantis", "tūkstančiai", "tūkstančių"], 1000)
+    add_to_dict(res, ["milijonas", "milijonai"], 1000000)
     return res
 
 
@@ -115,13 +120,16 @@ def add_to_dict(d: Dict, keys: List[str], val: Any):
 
 def init_operations() -> dict:
     res = dict()
-    add_to_dict(res, ["VIENETAS", "DESIMT", "DESIMTYS", "SIMTAS", "Israiska", "S", "VIENETASSHAK"], take_first)
-    add_to_dict(res, ["Vienet", "VienetShak"], take_first)
-    add_to_dict(res, ["Desimt", "DesimtShak"], process_desimt)
-    add_to_dict(res, ["Simt", "SimtShak"], process_simtai)
-    add_to_dict(res, ["Tukst", "TukstShak"], process_vienetas)
-    add_to_dict(res, ["Sveikas", "SveikasShak"], process_vienetas)
-    res["Skaicius"] = process_vienetas
+    add_to_dict(res, ["VIENETAS", "DESIMT", "DESIMTYS", "SIMTAS", "TUKSTANTIS",
+                      "MILIJONAS", "Israiska", "S", "VIENETASSHAK", 'KABLELIS',
+                      "VIENETASSKAIT", "VIENETASVARD"],
+                take_first)
+    add_to_dict(res, ["Vienet", "VienetShak", "VienetSkait", "VienetVard", "SveikojiDal", "Trupmenine"], take_first)
+    add_to_dict(res, ["Desimt", "DesimtShak", "DesimtSkait", "DesimtVard"], process_desimt)
+    add_to_dict(res, ["Simt", "SimtShak", "SimtSkait", "SimtVard"], process_simtai)
+    add_to_dict(res, ["Tukst", "TukstShak", "TukstSkait", "TukstVard"], process_tukst)
+    add_to_dict(res, ["Sveikas", "SveikasShak", "SveikasSkait", "SveikasVard"], process_sveikas)
+    res["Skaicius"] = process_skaicius
     res["Gilyn"] = process_vienetas
     res["Reiksme"] = process_vienetas
     res["Isrneig"] = process_vienetas
@@ -133,6 +141,7 @@ def init_operations() -> dict:
     res["Minus"] = process_minus
     res["Daugyba"] = process_kart
     res["Dalyba"] = process_dalint
+    res["Realus"] = process_realus
     for s in ["Skip", "PLIUS", "MINUS", "DAUGYBA", "DALYBA"]:
         res[s] = process_skip
     return res
@@ -149,6 +158,12 @@ def process_desimt(node: ResultNode):
     node.value = res
 
 
+def process_realus(node: ResultNode):
+    num = "%d.%d" % (node.nodes[0].value, node.nodes[2].value)
+    res = float(num)
+    node.value = res
+
+
 def process_simtai(node: ResultNode):
     if (len(node.nodes)) == 1:
         node.value = node.nodes[0].value
@@ -157,6 +172,39 @@ def process_simtai(node: ResultNode):
         node.value = node.nodes[0].value * node.nodes[1].value + node.nodes[2].value
         return
     if node.nodes[0].name == "SIMTAS":
+        node.value = node.nodes[0].value + node.nodes[1].value
+    else:
+        node.value = node.nodes[0].value * node.nodes[1].value
+
+
+def process_skaicius(node: ResultNode):
+    if (len(node.nodes)) == 1:
+        node.value = node.nodes[0].value
+        return
+    node.value = node.nodes[0].value / node.nodes[1].value
+
+
+def process_tukst(node: ResultNode):
+    if (len(node.nodes)) == 1:
+        node.value = node.nodes[0].value
+        return
+    if (len(node.nodes)) == 3:
+        node.value = node.nodes[0].value * node.nodes[1].value + node.nodes[2].value
+        return
+    if node.nodes[0].name == "TUKSTANTIS":
+        node.value = node.nodes[0].value + node.nodes[1].value
+    else:
+        node.value = node.nodes[0].value * node.nodes[1].value
+
+
+def process_sveikas(node: ResultNode):
+    if (len(node.nodes)) == 1:
+        node.value = node.nodes[0].value
+        return
+    if (len(node.nodes)) == 3:
+        node.value = node.nodes[0].value * node.nodes[1].value + node.nodes[2].value
+        return
+    if node.nodes[0].name == "MILIJONAS":
         node.value = node.nodes[0].value + node.nodes[1].value
     else:
         node.value = node.nodes[0].value * node.nodes[1].value
