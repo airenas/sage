@@ -11,6 +11,7 @@ class DataType(Enum):
     TEXT = 1
     AUDIO = 2
     STATUS = 3
+    SVG = 4
 
 
 class Data:

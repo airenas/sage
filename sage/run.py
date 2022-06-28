@@ -10,6 +10,7 @@ from sage.cfg.grammar import Calculator
 from sage.cfg.parser import ResultParser
 from sage.io.terminal import TerminalInput, TerminalOutput
 from sage.io.voice import VoiceOutput
+from sage.latex.wrapper import LatexWrapper
 from sage.logger import logger
 from sage.tts.intelektika import IntelektikaTTS
 
@@ -61,6 +62,7 @@ def main(param):
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--tts_key", nargs='?', default='intelektika', help="TTS key")
+    parser.add_argument("--latex_url", nargs='?', default='http://localhost:5030/renderLatex', help="URL of Latex equation maker")
     args = parser.parse_args(args=param)
 
     signal.signal(signal.SIGINT, handler)
@@ -69,7 +71,8 @@ def main(param):
         runner.add_output(d)
 
     runner = Runner(
-        bot=CalculatorBot(out_func=out_func, cfg=Calculator(file="data/calc/grammar.cfg"), parser=ResultParser()))
+        bot=CalculatorBot(out_func=out_func, cfg=Calculator(file="data/calc/grammar.cfg"), parser=ResultParser(),
+                          eq_parser=ResultParser(), eq_maker=LatexWrapper(url=args.latex_url)))
 
     def in_func(d: Data):
         runner.add_input(d)

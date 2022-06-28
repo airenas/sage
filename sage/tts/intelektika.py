@@ -1,7 +1,9 @@
 import base64
-from sage.logger import logger
 
 import requests
+
+from sage.logger import logger
+
 
 class IntelektikaTTS:
     def __init__(self, url: str, key: str, voice: str):
@@ -13,6 +15,8 @@ class IntelektikaTTS:
     def convert(self, txt: str) -> bytes:
         in_data = {'text': txt, "voice": self.__voice}
         x = requests.post(self.__url, json=in_data, headers={"Authorization": "Key " + self.__key})
+        if x.status_code != 200:
+            raise Exception("Can't synthesize")
         data = x.json()
         res = data['audioAsString']
         base64_bytes = res.encode('ascii')

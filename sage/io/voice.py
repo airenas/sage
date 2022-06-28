@@ -22,5 +22,7 @@ class VoiceOutput:
                 logger.error(err)
         elif d.type == DataType.STATUS:
             pass
+        elif d.type == DataType.SVG:
+            pass
         else:
             logger.warning("Don't know what to do with %s data" % d.type)
