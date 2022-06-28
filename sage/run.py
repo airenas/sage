@@ -1,5 +1,6 @@
 import argparse
 import queue
+import signal
 import sys
 import threading
 
@@ -49,6 +50,11 @@ class Runner:
         self.__outputs.append(proc)
 
 
+def handler(signum, frame):
+    logger.info("Exit sage")
+    exit(0)
+
+
 def main(param):
     parser = argparse.ArgumentParser(description="This app starts voice to voice bot",
                                      epilog="" + sys.argv[0] + "",
@@ -56,6 +62,8 @@ def main(param):
 
     parser.add_argument("--tts_key", nargs='?', default='intelektika', help="TTS key")
     args = parser.parse_args(args=param)
+
+    signal.signal(signal.SIGINT, handler)
 
     def out_func(d: Data):
         runner.add_output(d)
