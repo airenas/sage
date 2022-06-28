@@ -18,6 +18,14 @@ class UnknownLeave(ParseError):
         self.string = string
 
 
+class NoImplemented(ParseError):
+    """Raised when the operation is not implemented"""
+
+    def __init__(self, string):
+        self.message = "Not implemented `%s`" % string
+        self.string = string
+
+
 class UnknownOperation(ParseError):
     """Raised when the label is undefined"""
     pass
@@ -106,7 +114,7 @@ def init_leaves() -> dict:
     res['devyni'] = 9
     res['dešimt'] = 10
     res['dvidešimt'] = 20
-    add_to_dict(res, ["plius", "minus", "kart", "padalint", "iš", "kablelis"], 0)
+    add_to_dict(res, ["plius", "minus", "kart", "padalint", "dalinti", "iš", "kablelis", "skliaustai"], 0)
     add_to_dict(res, ["šimtas", "šimtai"], 100)
     add_to_dict(res, ["tūkstantis", "tūkstančiai", "tūkstančių"], 1000)
     add_to_dict(res, ["milijonas", "milijonai"], 1000000)
@@ -124,7 +132,7 @@ def init_operations() -> dict:
                       "MILIJONAS", "Israiska", "S", "VIENETASSHAK", 'KABLELIS',
                       "VIENETASSKAIT", "VIENETASVARD"],
                 take_first)
-    add_to_dict(res, ["Vienet", "VienetShak", "VienetSkait", "VienetVard", "SveikojiDal", "Trupmenine"], take_first)
+    add_to_dict(res, ["Vienet", "VienetShak", "VienetSkait", "VienetVard", "SveikojiDal", "Trupmenine", "SingleParen"], take_first)
     add_to_dict(res, ["Desimt", "DesimtShak", "DesimtSkait", "DesimtVard"], process_desimt)
     add_to_dict(res, ["Simt", "SimtShak", "SimtSkait", "SimtVard"], process_simtai)
     add_to_dict(res, ["Tukst", "TukstShak", "TukstSkait", "TukstVard"], process_tukst)
@@ -144,6 +152,9 @@ def init_operations() -> dict:
     res["Realus"] = process_realus
     for s in ["Skip", "PLIUS", "MINUS", "DAUGYBA", "DALYBA"]:
         res[s] = process_skip
+    res["SklKair"] = process_skip
+    res["KairysSkl"] = process_skl_kair
+    res["More"] = process_more
     return res
 
 
@@ -182,6 +193,24 @@ def process_skaicius(node: ResultNode):
         node.value = node.nodes[0].value
         return
     node.value = node.nodes[0].value / node.nodes[1].value
+
+
+def process_skl_kair(node: ResultNode):
+    if (len(node.nodes)) == 1:
+        node.value = node.nodes[0].value
+        return
+    node.value = node.nodes[1].value
+
+
+def process_more(node: ResultNode):
+    if (len(node.nodes)) == 3:
+        if node.nodes[1].name == "Plius":
+            node.value = node.nodes[0].value + node.nodes[2].value
+            return
+        if node.nodes[1].name == "Minus":
+            node.value = node.nodes[0].value - node.nodes[2].value
+            return
+    raise NotImplemented(node.name)
 
 
 def process_tukst(node: ResultNode):

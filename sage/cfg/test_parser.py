@@ -14,6 +14,8 @@ def parse(txt: str) -> (str, bool):
 
 
 def test_parse_simple():
+    ok_test("skliaustai du plius keturi kart trys", "18")
+    ok_test("skliaustai du minus keturi dalinti du", "-1")
     ok_test("dvi ketvirtosios", "0.5")
     ok_test("trys milijonai keturi šimtai tūkstančių šimtas dešimt", "3400110")
     ok_test("tūkstantis", "1000")
