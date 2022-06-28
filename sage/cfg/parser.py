@@ -1,3 +1,5 @@
+from typing import Any, List, Dict
+
 import nltk as nltk
 
 from sage.logger import logger
@@ -30,6 +32,12 @@ class ResultNode:
         self.operation = None
 
 
+def to_str(value: float):
+    if value == round(value):
+        return str(round(value))
+    return str(value)
+
+
 class ResultParser:
     def __init__(self):
         logger.info("Init Result Parser")
@@ -39,7 +47,7 @@ class ResultParser:
     def parse(self, tree: nltk.Tree) -> str:
         res_tree = self.map_to_res(tree)
         self.calculate(res_tree)
-        return str(res_tree.value)
+        return to_str(res_tree.value)
 
     def map_to_res(self, node) -> ResultNode:
         if type(node) is nltk.Tree:
@@ -85,7 +93,7 @@ def getNodes(parent, deep):
 def init_leaves() -> dict:
     res = dict()
     res['vienas'] = 1
-    res['du'] = 2
+    add_to_dict(res, ['du', 'dviejų'], 2)
     res['trys'] = 3
     res['keturi'] = 4
     res['penki'] = 5
@@ -96,21 +104,23 @@ def init_leaves() -> dict:
     res['dešimt'] = 10
     res['dvidešimt'] = 20
     res['šimtai'] = 100
-    for s in ["plius", "minus", "kart"]:
-        res[s] = 0
+    add_to_dict(res, ["plius", "minus", "kart", "padalint", "iš"], 0)
     return res
+
+
+def add_to_dict(d: Dict, keys: List[str], val: Any):
+    for s in keys:
+        d[s] = val
 
 
 def init_operations() -> dict:
     res = dict()
-    for s in ["VIENETAS", "DESIMT", "DESIMTYS", "SIMTAS", "Israiska", "S"]:
-        res[s] = take_first
-
-    res["Vienet"] = process_vienetas
-    res["Desimt"] = process_desimt
-    res["Simt"] = process_simtai
-    res["Tukst"] = process_vienetas
-    res["Sveikas"] = process_vienetas
+    add_to_dict(res, ["VIENETAS", "DESIMT", "DESIMTYS", "SIMTAS", "Israiska", "S", "VIENETASSHAK"], take_first)
+    add_to_dict(res, ["Vienet", "VienetShak"], take_first)
+    add_to_dict(res, ["Desimt", "DesimtShak"], process_desimt)
+    add_to_dict(res, ["Simt", "SimtShak"], process_simtai)
+    add_to_dict(res, ["Tukst", "TukstShak"], process_vienetas)
+    add_to_dict(res, ["Sveikas", "SveikasShak"], process_vienetas)
     res["Skaicius"] = process_vienetas
     res["Gilyn"] = process_vienetas
     res["Reiksme"] = process_vienetas
@@ -122,7 +132,8 @@ def init_operations() -> dict:
     res["Plius"] = process_plius
     res["Minus"] = process_minus
     res["Daugyba"] = process_kart
-    for s in ["Skip", "PLIUS", "MINUS", "DAUGYBA"]:
+    res["Dalyba"] = process_dalint
+    for s in ["Skip", "PLIUS", "MINUS", "DAUGYBA", "DALYBA"]:
         res[s] = process_skip
     return res
 
@@ -160,7 +171,7 @@ def take_first(node: ResultNode):
 
 
 def process_op(node: ResultNode):
-    if len(node.nodes) == 3:
+    if len(node.nodes) >= 3:
         node.nodes[1].operation(node)
         return
     node.value = node.nodes[0].value
@@ -176,6 +187,13 @@ def process_plius(node: ResultNode):
 def process_kart(node: ResultNode):
     def op(node_p: ResultNode):
         node_p.value = node_p.nodes[0].value * node_p.nodes[2].value
+
+    node.operation = op
+
+
+def process_dalint(node: ResultNode):
+    def op(node_p: ResultNode):
+        node_p.value = node_p.nodes[0].value / node_p.nodes[2].value
 
     node.operation = op
 

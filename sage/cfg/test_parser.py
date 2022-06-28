@@ -14,6 +14,9 @@ def parse(txt: str) -> (str, bool):
 
 
 def test_parse_simple():
+    ok_test("šeši padalint iš dviejų", "3")
+    ok_test("šeši padalint du", "3")
+    ok_test("penki plius šeši padalint iš dviejų", "8")
     ok_test("penki plius šeši kart septyni", "47")
     ok_test("du šimtai dvidešimt vienas kart keturi", "884")
     ok_test("dvidešimt du plius trys", "25")
