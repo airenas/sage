@@ -8,6 +8,7 @@ from sage.api.data import Data, DataType
 from sage.bot import CalculatorBot
 from sage.cfg.grammar import Calculator
 from sage.cfg.parser import ResultParser
+from sage.io.socket import SocketIO
 from sage.io.terminal import TerminalInput, TerminalOutput
 from sage.io.voice import VoiceOutput
 from sage.latex.wrapper import LatexWrapper
@@ -62,7 +63,9 @@ def main(param):
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--tts_key", nargs='?', default='intelektika', help="TTS key")
-    parser.add_argument("--latex_url", nargs='?', default='http://localhost:5030/renderLatex', help="URL of Latex equation maker")
+    parser.add_argument("--latex_url", nargs='?', default='http://localhost:5030/renderLatex',
+                        help="URL of Latex equation maker")
+    parser.add_argument("--port", nargs='?', default=8007, help="Service port for socketio clients")
     args = parser.parse_args(args=param)
 
     signal.signal(signal.SIGINT, handler)
@@ -80,8 +83,13 @@ def main(param):
     terminal = TerminalInput(msg_func=in_func)
     threading.Thread(target=terminal.start, daemon=True).start()
 
+    ws_service = SocketIO(msg_func=in_func, port=args.port)
+    # ws_service.start()
+    threading.Thread(target=ws_service.start, daemon=True).start()
+
     terminal_out = TerminalOutput()
     runner.add_output_processor(terminal_out.process)
+    runner.add_output_processor(ws_service.process)
 
     tts = IntelektikaTTS(url="https://sinteze-test.intelektika.lt/synthesis.service/prod/synthesize", key=args.tts_key,
                          voice="laimis")

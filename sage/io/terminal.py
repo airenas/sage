@@ -24,6 +24,6 @@ class TerminalOutput:
         elif d.type == DataType.STATUS:
             print("%s: %s" % (d.who, d.data))
         elif d.type == DataType.SVG:
-            print("%s: %s" % (d.who, d.data))
+            print("%s" % (d.who))
         else:
             logger.warning("Don't know what to do with %s data" % d.type)
