@@ -29,8 +29,11 @@ class SocketIO:
         self.loop.run_forever()
 
     async def message(self, sid, data):
-        logger.info("message: %s, %s " % (sid, data))
-        self.msg_func(Data(in_type=DataType.TEXT, who=Sender.USER, data=data))
+        if data['type'] == "AUDIO":
+            self.msg_func(Data(in_type=DataType.AUDIO, who=Sender.USER, data=data['data']))
+        else:
+            logger.info("message: %s, %s " % (sid, data))
+            self.msg_func(Data(in_type=DataType.TEXT, who=Sender.USER, data=data['data']))
 
     def process(self, d: Data):
         asyncio.run_coroutine_threadsafe(self.send(d), self.loop)

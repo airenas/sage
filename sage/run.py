@@ -3,6 +3,9 @@ import queue
 import signal
 import sys
 import threading
+from io import BytesIO
+
+from pydub.playback import play
 
 from sage.api.data import Data, DataType
 from sage.bot import CalculatorBot
@@ -30,6 +33,14 @@ class Runner:
             inp = self.__input_queue.get()
             if inp.type == DataType.TEXT:
                 self.__bot.process(inp.data)
+            elif inp.type == DataType.AUDIO:
+                logger.info("got audio %d" % len(inp.data))
+                from pydub import AudioSegment
+                opus_data = BytesIO(inp.data)
+                 # todo: second audio chunk arrives without header
+                sound = AudioSegment.from_file(opus_data, codec="opus")
+                logger.info("decoded %d" % len(sound))
+                play(sound)
             else:
                 logger.warning("Don't know what to do with %s data" % inp.type)
 
