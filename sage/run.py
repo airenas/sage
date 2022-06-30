@@ -84,7 +84,6 @@ def main(param):
     threading.Thread(target=terminal.start, daemon=True).start()
 
     ws_service = SocketIO(msg_func=in_func, port=args.port)
-    # ws_service.start()
     threading.Thread(target=ws_service.start, daemon=True).start()
 
     terminal_out = TerminalOutput()
