@@ -18,13 +18,16 @@ class CalculatorBot:
         try:
             tree, ok = self.__cfg.parse(txt)
             if not ok:
+                self.__out_func(Data(in_type=DataType.STATUS, data="saying"))
                 self.__out_func(Data(in_type=DataType.TEXT, data="Nesuprantu"))
             elif tree is None:
+                self.__out_func(Data(in_type=DataType.STATUS, data="saying"))
                 self.__out_func(Data(in_type=DataType.TEXT, data="Pabaikite išraišką"))
             else:
                 res = self.__parser.parse(tree)
                 eq_res = self.__eq_parser.parse(tree)
                 eq_svg = self.__eq_maker.prepare(eq_res)
+                self.__out_func(Data(in_type=DataType.STATUS, data="saying"))
                 self.__out_func(Data(in_type=DataType.SVG, data=eq_svg, who=Sender.BOT))
                 self.__out_func(Data(in_type=DataType.TEXT, data=res, who=Sender.BOT))
         except UnknownLeave as err:
