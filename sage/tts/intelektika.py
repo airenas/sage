@@ -16,7 +16,7 @@ class IntelektikaTTS:
         in_data = {'text': txt, "voice": self.__voice}
         x = requests.post(self.__url, json=in_data, headers={"Authorization": "Key " + self.__key})
         if x.status_code != 200:
-            raise Exception("Can't synthesize")
+            raise Exception("Can't synthesize: " + x.text)
         data = x.json()
         res = data['audioAsString']
         base64_bytes = res.encode('ascii')

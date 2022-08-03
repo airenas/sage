@@ -1,3 +1,4 @@
+import uuid
 from enum import Enum
 from typing import Any
 
@@ -5,6 +6,12 @@ from typing import Any
 class Sender(Enum):
     USER = 1
     BOT = 2
+
+    def to_str(self):
+        if self == Sender.USER:
+            return "USER"
+        else:
+            return "BOT"
 
 
 class DataType(Enum):
@@ -19,3 +26,4 @@ class Data:
         self.type = in_type
         self.data = data
         self.who = who
+        self.id = str(uuid.uuid1())

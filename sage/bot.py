@@ -15,6 +15,8 @@ class CalculatorBot:
     def process(self, txt: str):
         logger.debug("got %s " % txt)
         self.__out_func(Data(in_type=DataType.STATUS, data="thinking"))
+        ## resend input to user
+        self.__out_func(Data(in_type=DataType.TEXT, data=txt, who=Sender.USER))
         try:
             tree, ok = self.__cfg.parse(txt)
             if not ok:

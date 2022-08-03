@@ -8,6 +8,9 @@ install/req:
 	pip install -r requirements.txt
 install/test-req:
 	pip install -r requirements_test.txt
+
+install/deps:
+	sudo apt install -y portaudio19-dev python3-pyaudio
 run:
 	python -m sage.run
 

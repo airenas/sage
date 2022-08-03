@@ -3,11 +3,9 @@ import queue
 import signal
 import sys
 import threading
-from io import BytesIO
-
-from pydub.playback import play
 
 from sage.api.data import Data, DataType
+from sage.aplayer.player import Player
 from sage.bot import CalculatorBot
 from sage.cfg.grammar import Calculator
 from sage.cfg.parser import ResultParser
@@ -20,12 +18,13 @@ from sage.tts.intelektika import IntelektikaTTS
 
 
 class Runner:
-    def __init__(self, bot):
+    def __init__(self, bot, audioPlayer):
         logger.info("Init runner")
         self.__bot = bot
         self.__outputs = []
         self.__input_queue: queue.Queue[Data] = queue.Queue(maxsize=500)
         self.__output_queue: queue.Queue[Data] = queue.Queue(maxsize=500)
+        self.__player = audioPlayer;
 
     def start(self):
         self.start_output()
@@ -35,12 +34,7 @@ class Runner:
                 self.__bot.process(inp.data)
             elif inp.type == DataType.AUDIO:
                 logger.info("got audio %d" % len(inp.data))
-                from pydub import AudioSegment
-                opus_data = BytesIO(inp.data)
-                 # todo: second audio chunk arrives without header
-                sound = AudioSegment.from_file(opus_data, codec="opus")
-                logger.info("decoded %d" % len(sound))
-                play(sound)
+                self.__player.add(inp.data)
             else:
                 logger.warning("Don't know what to do with %s data" % inp.type)
 
@@ -84,15 +78,19 @@ def main(param):
     def out_func(d: Data):
         runner.add_output(d)
 
+    audioPlayer = Player(rate=48000)
+
     runner = Runner(
         bot=CalculatorBot(out_func=out_func, cfg=Calculator(file="data/calc/grammar.cfg"), parser=ResultParser(),
-                          eq_parser=ResultParser(), eq_maker=LatexWrapper(url=args.latex_url)))
+                          eq_parser=ResultParser(), eq_maker=LatexWrapper(url=args.latex_url)),
+        audioPlayer=audioPlayer)
 
     def in_func(d: Data):
         runner.add_input(d)
 
     terminal = TerminalInput(msg_func=in_func)
     threading.Thread(target=terminal.start, daemon=True).start()
+    threading.Thread(target=audioPlayer.start, daemon=True).start()
 
     ws_service = SocketIO(msg_func=in_func, port=args.port)
     threading.Thread(target=ws_service.start, daemon=True).start()
