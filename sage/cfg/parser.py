@@ -114,7 +114,7 @@ def init_leaves() -> dict:
     res['devyni'] = 9
     res['dešimt'] = 10
     res['dvidešimt'] = 20
-    add_to_dict(res, ["plius", "minus", "kart", "padalint", "dalinti", "iš", "kablelis", "skliaustai"], 0)
+    add_to_dict(res, ["plius", "minus", "kart", "padalint", "dalinti", "dalint",  "iš", "kablelis", "skliaustai"], 0)
     add_to_dict(res, ["šimtas", "šimtai"], 100)
     add_to_dict(res, ["tūkstantis", "tūkstančiai", "tūkstančių"], 1000)
     add_to_dict(res, ["milijonas", "milijonai"], 1000000)

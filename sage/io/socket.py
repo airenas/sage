@@ -31,6 +31,8 @@ class SocketIO:
     async def message(self, sid, data):
         if data['type'] == "AUDIO":
             self.msg_func(Data(in_type=DataType.AUDIO, who=Sender.USER, data=data['data']))
+        elif data['type'] == "EVENT":
+            self.msg_func(Data(in_type=DataType.EVENT, who=Sender.USER, data=data['data']))
         else:
             logger.info("message: %s, %s " % (sid, data))
             self.msg_func(Data(in_type=DataType.TEXT, who=Sender.USER, data=data['data']))

@@ -18,6 +18,9 @@ class Player:
         logger.debug("add play data of len %d" % len(data))
         self.__audio_queue.put(data)
 
+    def event(self, data: str):
+        pass
+
     def start(self):
         while True:
             self.__play(self.__audio_queue.get())

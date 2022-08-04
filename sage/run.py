@@ -6,6 +6,7 @@ import threading
 
 from sage.api.data import Data, DataType
 from sage.aplayer.player import Player
+from sage.asr.kaldi import Kaldi
 from sage.bot import CalculatorBot
 from sage.cfg.grammar import Calculator
 from sage.cfg.parser import ResultParser
@@ -18,13 +19,13 @@ from sage.tts.intelektika import IntelektikaTTS
 
 
 class Runner:
-    def __init__(self, bot, audioPlayer):
+    def __init__(self, bot, audio_rec):
         logger.info("Init runner")
         self.__bot = bot
         self.__outputs = []
         self.__input_queue: queue.Queue[Data] = queue.Queue(maxsize=500)
         self.__output_queue: queue.Queue[Data] = queue.Queue(maxsize=500)
-        self.__player = audioPlayer;
+        self.__audio_rec = audio_rec;
 
     def start(self):
         self.start_output()
@@ -34,7 +35,10 @@ class Runner:
                 self.__bot.process(inp.data)
             elif inp.type == DataType.AUDIO:
                 logger.info("got audio %d" % len(inp.data))
-                self.__player.add(inp.data)
+                self.__audio_rec.add(inp.data)
+            elif inp.type == DataType.EVENT:
+                logger.info("got event %s" % inp.data)
+                self.__audio_rec.event(inp.data)
             else:
                 logger.warning("Don't know what to do with %s data" % inp.type)
 
@@ -78,19 +82,19 @@ def main(param):
     def out_func(d: Data):
         runner.add_output(d)
 
-    audioPlayer = Player(rate=48000)
+    rec = Kaldi(msg_func=out_func)
 
     runner = Runner(
         bot=CalculatorBot(out_func=out_func, cfg=Calculator(file="data/calc/grammar.cfg"), parser=ResultParser(),
                           eq_parser=ResultParser(), eq_maker=LatexWrapper(url=args.latex_url)),
-        audioPlayer=audioPlayer)
+        audio_rec= rec)
 
     def in_func(d: Data):
         runner.add_input(d)
 
     terminal = TerminalInput(msg_func=in_func)
     threading.Thread(target=terminal.start, daemon=True).start()
-    threading.Thread(target=audioPlayer.start, daemon=True).start()
+    threading.Thread(target=rec.start, daemon=True).start()
 
     ws_service = SocketIO(msg_func=in_func, port=args.port)
     threading.Thread(target=ws_service.start, daemon=True).start()
