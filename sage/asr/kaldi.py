@@ -43,10 +43,10 @@ class Kaldi:
             self.__process_recognized(self.__txt_queue.get())
 
     def __process(self, data: bytes):
-        if self.next < dt.datetime.now():
+        now = dt.datetime.now()
+        if self.next > now:
             return
-        self.next = dt.datetime.now() + dt.timedelta(milliseconds=200)
-        sleep(0.1)
+        self.next = dt.datetime.now() + dt.timedelta(milliseconds=500)
         arr_num = ["du", "trys", "penki", "šimtas", "milijonas"]
 
         arr_op = ["kart", "plius", "minus", "minus", "dalint"]
