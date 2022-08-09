@@ -151,7 +151,7 @@ def init_operations() -> dict:
     res["Skaicius"] = process_skaicius
     res["Gilyn"] = process_vienetas
     res["Reiksme"] = process_vienetas
-    res["Isrneig"] = process_vienetas
+    res["Isrneig"] = process_vienetas_neig
     res["Isrlps"] = process_vienetas
     res["Isrsak"] = process_vienetas
     res["Isrkart"] = process_op
@@ -184,7 +184,7 @@ def init_operations_eq() -> dict:
     res["Skaicius"] = process_skaicius_eq
     res["Gilyn"] = process_vienetas
     res["Reiksme"] = process_vienetas
-    res["Isrneig"] = process_vienetas
+    res["Isrneig"] = process_vienetas_neig_eq
     res["Isrlps"] = process_vienetas
     res["Isrsak"] = process_vienetas
     res["Isrkart"] = process_op
@@ -204,6 +204,20 @@ def init_operations_eq() -> dict:
 
 def process_vienetas(node: ResultNode):
     node.value = node.nodes[0].value
+
+
+def process_vienetas_neig(node: ResultNode):
+    if (len(node.nodes)) == 2:
+        node.value = 0 - node.nodes[1].value
+    else:
+        process_vienetas(node)
+
+
+def process_vienetas_neig_eq(node: ResultNode):
+    if (len(node.nodes)) == 2:
+        node.value = "- %s" % node.nodes[1].value
+    else:
+        process_vienetas(node)
 
 
 def process_desimt(node: ResultNode):

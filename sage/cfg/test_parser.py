@@ -13,6 +13,7 @@ def parse(txt: str, parser) -> (str, bool):
 
 
 def test_parse_simple():
+    ok_test("minus vienas", "-1")
     ok_test("skliaustai du plius keturi kart trys", "18")
     ok_test("skliaustai du minus keturi dalinti du", "-1")
     ok_test("dvi ketvirtosios", "0.5")
@@ -47,6 +48,8 @@ def parser_test(parser, s, v):
 
 
 def test_eq_parse_simple():
+    ok_eq_test("minus skliaustai du plius keturi", "- \\left( 2 + 4 \\right)")
+    ok_eq_test("minus vienas", "- 1")
     ok_eq_test("skliaustai du plius keturi dalinti du", "\\frac{\\left( 2 + 4 \\right)}{2}")
     ok_eq_test("du", "2")
     ok_eq_test("du plius trys", "2 + 3")
