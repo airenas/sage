@@ -43,12 +43,6 @@ class ResultNode:
         self.operation = None
 
 
-def to_str(value: float):
-    if value == round(value):
-        return str(round(value))
-    return str(value)
-
-
 class ResultParser:
     def __init__(self):
         logger.info("Init Result Parser")
@@ -58,7 +52,7 @@ class ResultParser:
     def parse(self, tree: nltk.Tree) -> str:
         res_tree = self.map_to_res(tree)
         self.calculate(res_tree)
-        return to_str(res_tree.value)
+        return self.to_str(res_tree.value)
 
     def map_to_res(self, node) -> ResultNode:
         if type(node) is nltk.Tree:
@@ -68,6 +62,11 @@ class ResultParser:
         else:
             res = ResultNode(node_value=node)
         return res
+
+    def to_str(self, value):
+        if value == round(value):
+            return str(round(value))
+        return str(value)
 
     def calculate(self, node: ResultNode):
         for ch in node.nodes:
@@ -87,7 +86,18 @@ class ResultParser:
             node.value = v
 
 
-def getNodes(parent, deep):
+class EqParser(ResultParser):
+    def __init__(self):
+        super().__init__()
+        logger.info("Init Eq Parser")
+        self.leaves_map = init_leaves()
+        self.operations_map = init_operations_eq()
+
+    def to_str(self, value):
+        return str(value)
+
+
+def get_nodes(parent, deep):
     if type(parent) is nltk.Tree:
         if parent.label() == 'S':
             print("======== Sentence =========")
@@ -96,7 +106,7 @@ def getNodes(parent, deep):
         if type(node) is nltk.Tree:
             print("Label: %d - %s" % (deep, node.label()))
             print("Leaves:", node.leaves())
-            getNodes(node, deep + 1)
+            get_nodes(node, deep + 1)
         else:
             print("Word:", node)
 
@@ -114,7 +124,7 @@ def init_leaves() -> dict:
     res['devyni'] = 9
     res['dešimt'] = 10
     res['dvidešimt'] = 20
-    add_to_dict(res, ["plius", "minus", "kart", "padalint", "dalinti", "dalint",  "iš", "kablelis", "skliaustai"], 0)
+    add_to_dict(res, ["plius", "minus", "kart", "padalint", "dalinti", "dalint", "iš", "kablelis", "skliaustai"], 0)
     add_to_dict(res, ["šimtas", "šimtai"], 100)
     add_to_dict(res, ["tūkstantis", "tūkstančiai", "tūkstančių"], 1000)
     add_to_dict(res, ["milijonas", "milijonai"], 1000000)
@@ -132,7 +142,8 @@ def init_operations() -> dict:
                       "MILIJONAS", "Israiska", "S", "VIENETASSHAK", 'KABLELIS',
                       "VIENETASSKAIT", "VIENETASVARD"],
                 take_first)
-    add_to_dict(res, ["Vienet", "VienetShak", "VienetSkait", "VienetVard", "SveikojiDal", "Trupmenine", "SingleParen"], take_first)
+    add_to_dict(res, ["Vienet", "VienetShak", "VienetSkait", "VienetVard", "SveikojiDal", "Trupmenine", "SingleParen"],
+                take_first)
     add_to_dict(res, ["Desimt", "DesimtShak", "DesimtSkait", "DesimtVard"], process_desimt)
     add_to_dict(res, ["Simt", "SimtShak", "SimtSkait", "SimtVard"], process_simtai)
     add_to_dict(res, ["Tukst", "TukstShak", "TukstSkait", "TukstVard"], process_tukst)
@@ -155,6 +166,39 @@ def init_operations() -> dict:
     res["SklKair"] = process_skip
     res["KairysSkl"] = process_skl_kair
     res["More"] = process_more
+    return res
+
+
+def init_operations_eq() -> dict:
+    res = dict()
+    add_to_dict(res, ["VIENETAS", "DESIMT", "DESIMTYS", "SIMTAS", "TUKSTANTIS",
+                      "MILIJONAS", "Israiska", "S", "VIENETASSHAK", 'KABLELIS',
+                      "VIENETASSKAIT", "VIENETASVARD"],
+                take_first)
+    add_to_dict(res, ["Vienet", "VienetShak", "VienetSkait", "VienetVard", "SveikojiDal", "Trupmenine", "SingleParen"],
+                take_first)
+    add_to_dict(res, ["Desimt", "DesimtShak", "DesimtSkait", "DesimtVard"], process_desimt)
+    add_to_dict(res, ["Simt", "SimtShak", "SimtSkait", "SimtVard"], process_simtai)
+    add_to_dict(res, ["Tukst", "TukstShak", "TukstSkait", "TukstVard"], process_tukst)
+    add_to_dict(res, ["Sveikas", "SveikasShak", "SveikasSkait", "SveikasVard"], process_sveikas)
+    res["Skaicius"] = process_skaicius_eq
+    res["Gilyn"] = process_vienetas
+    res["Reiksme"] = process_vienetas
+    res["Isrneig"] = process_vienetas
+    res["Isrlps"] = process_vienetas
+    res["Isrsak"] = process_vienetas
+    res["Isrkart"] = process_op
+    res["Israiskaplus"] = process_op
+    res["Plius"] = process_plius_eq
+    res["Minus"] = process_minus_eq
+    res["Daugyba"] = process_kart_eq
+    res["Dalyba"] = process_dalint_eq
+    res["Realus"] = process_realus
+    for s in ["Skip", "PLIUS", "MINUS", "DAUGYBA", "DALYBA"]:
+        res[s] = process_skip
+    res["SklKair"] = process_skip
+    res["KairysSkl"] = process_skl_kair_eq
+    res["More"] = process_more_eq
     return res
 
 
@@ -195,6 +239,13 @@ def process_skaicius(node: ResultNode):
     node.value = node.nodes[0].value / node.nodes[1].value
 
 
+def process_skaicius_eq(node: ResultNode):
+    if (len(node.nodes)) == 1:
+        node.value = node.nodes[0].value
+        return
+    node.value = "\\frac{%s}{%s}" % (node.nodes[0].value, node.nodes[1].value)
+
+
 def process_skl_kair(node: ResultNode):
     if (len(node.nodes)) == 1:
         node.value = node.nodes[0].value
@@ -202,13 +253,31 @@ def process_skl_kair(node: ResultNode):
     node.value = node.nodes[1].value
 
 
+def process_skl_kair_eq(node: ResultNode):
+    v = node.nodes[0].value
+    if (len(node.nodes)) > 1:
+        v = node.nodes[1].value
+    node.value = "\\left( %s \\right)" % v
+
+
 def process_more(node: ResultNode):
     if (len(node.nodes)) == 3:
         if node.nodes[1].name == "Plius":
-            node.value = node.nodes[0].value + node.nodes[2].value
+            op_plius(node)
             return
         if node.nodes[1].name == "Minus":
-            node.value = node.nodes[0].value - node.nodes[2].value
+            op_minus(node)
+            return
+    raise NotImplemented(node.name)
+
+
+def process_more_eq(node: ResultNode):
+    if (len(node.nodes)) == 3:
+        if node.nodes[1].name == "Plius":
+            op_plius_eq(node)
+            return
+        if node.nodes[1].name == "Minus":
+            op_minus_eq(node)
             return
     raise NotImplemented(node.name)
 
@@ -254,16 +323,32 @@ def process_op(node: ResultNode):
     node.value = node.nodes[0].value
 
 
-def process_plius(node: ResultNode):
-    def op(node_p: ResultNode):
-        node_p.value = node_p.nodes[0].value + node_p.nodes[2].value
+def op_plius(node: ResultNode):
+    node.value = node.nodes[0].value + node.nodes[2].value
 
-    node.operation = op
+
+def process_plius(node: ResultNode):
+    node.operation = op_plius
+
+
+def op_plius_eq(node: ResultNode):
+    node.value = "%s + %s" % (node.nodes[0].value, node.nodes[2].value)
+
+
+def process_plius_eq(node: ResultNode):
+    node.operation = op_plius_eq
 
 
 def process_kart(node: ResultNode):
     def op(node_p: ResultNode):
         node_p.value = node_p.nodes[0].value * node_p.nodes[2].value
+
+    node.operation = op
+
+
+def process_kart_eq(node: ResultNode):
+    def op(node_p: ResultNode):
+        node_p.value = "%s \\cdot %s" % (node_p.nodes[0].value, node_p.nodes[2].value)
 
     node.operation = op
 
@@ -275,8 +360,24 @@ def process_dalint(node: ResultNode):
     node.operation = op
 
 
-def process_minus(node: ResultNode):
+def process_dalint_eq(node: ResultNode):
     def op(node_p: ResultNode):
-        node_p.value = node_p.nodes[0].value - node_p.nodes[2].value
+        node_p.value = "\\frac{%s}{%s}" % (node_p.nodes[0].value, node_p.nodes[2].value)
 
     node.operation = op
+
+
+def op_minus(node: ResultNode):
+    node.value = node.nodes[0].value - node.nodes[2].value
+
+
+def process_minus(node: ResultNode):
+    node.operation = op_minus
+
+
+def op_minus_eq(node: ResultNode):
+    node.value = "%s - %s" % (node.nodes[0].value, node.nodes[2].value)
+
+
+def process_minus_eq(node: ResultNode):
+    node.operation = op_minus_eq

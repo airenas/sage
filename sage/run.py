@@ -5,11 +5,10 @@ import sys
 import threading
 
 from sage.api.data import Data, DataType
-from sage.aplayer.player import Player
 from sage.asr.kaldi import Kaldi
 from sage.bot import CalculatorBot
 from sage.cfg.grammar import Calculator
-from sage.cfg.parser import ResultParser
+from sage.cfg.parser import ResultParser, EqParser
 from sage.io.socket import SocketIO
 from sage.io.terminal import TerminalInput, TerminalOutput
 from sage.io.voice import VoiceOutput
@@ -86,8 +85,8 @@ def main(param):
 
     runner = Runner(
         bot=CalculatorBot(out_func=out_func, cfg=Calculator(file="data/calc/grammar.cfg"), parser=ResultParser(),
-                          eq_parser=ResultParser(), eq_maker=LatexWrapper(url=args.latex_url)),
-        audio_rec= rec)
+                          eq_parser=EqParser(), eq_maker=LatexWrapper(url=args.latex_url)),
+        audio_rec=rec)
 
     def in_func(d: Data):
         runner.add_input(d)
