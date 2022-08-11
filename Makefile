@@ -14,6 +14,9 @@ install/deps:
 run:
 	python -m sage.run
 
+run/svg:
+	docker run --rm -p 5030:5030 planqk/latex-renderer:latest
+
 test:
 	pytest -v --log-level=INFO
 #####################################################################################
