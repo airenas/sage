@@ -2,7 +2,6 @@ import datetime as dt
 import queue
 import threading
 from random import randrange
-from time import sleep
 
 from sage.api.data import Data, DataType, Sender
 from sage.logger import logger

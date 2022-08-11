@@ -5,6 +5,7 @@ import sys
 import threading
 
 from sage.api.data import Data, DataType
+from sage.aplayer.player import Player
 from sage.asr.kaldi import Kaldi
 from sage.bot import CalculatorBot
 from sage.cfg.grammar import Calculator
@@ -71,6 +72,8 @@ def main(param):
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--tts_key", nargs='?', default='intelektika', help="TTS key")
+    parser.add_argument("--useAudioPlayer", default=False, action=argparse.BooleanOptionalAction,
+                        help="Use audio player for audio input data processing")
     parser.add_argument("--latex_url", nargs='?', default='http://localhost:5030/renderLatex',
                         help="URL of Latex equation maker")
     parser.add_argument("--port", nargs='?', default=8007, help="Service port for socketio clients")
@@ -81,7 +84,10 @@ def main(param):
     def out_func(d: Data):
         runner.add_output(d)
 
-    rec = Kaldi(msg_func=out_func)
+    if args.useAudioPlayer:
+        rec = Player()
+    else:
+        rec = Kaldi(msg_func=out_func)
 
     runner = Runner(
         bot=CalculatorBot(out_func=out_func, cfg=Calculator(file="data/calc/grammar.cfg"), parser=ResultParser(),
