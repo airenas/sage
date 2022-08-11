@@ -37,6 +37,6 @@ class CalculatorBot:
             self.__out_func(Data(in_type=DataType.TEXT, data="Nežinau žodžio %s" % err.string, who=Sender.BOT))
         except BaseException as err:
             logger.error(err)
-            self.__out_func(Data(in_type=DataType.TEXT, data="Deja, kažokia klaida!", who=Sender.BOT))
+            self.__out_func(Data(in_type=DataType.TEXT, data="Deja, kažkokia klaida!", who=Sender.BOT))
 
         self.__out_func(Data(in_type=DataType.STATUS, data="waiting"))
