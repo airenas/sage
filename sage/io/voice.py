@@ -13,7 +13,7 @@ class VoiceOutput:
         self.tts = tts
 
     def process(self, d: Data):
-        if d.type == DataType.TEXT:
+        if d.type == DataType.TEXT or d.type == DataType.TEXT_RESULT:
             if d.who == Sender.BOT:
                 try:
                     res = self.tts.convert(d.data)

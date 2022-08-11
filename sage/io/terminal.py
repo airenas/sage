@@ -19,7 +19,7 @@ class TerminalOutput:
         logger.info("Init terminal output")
 
     def process(self, d: Data):
-        if d.type == DataType.TEXT:
+        if d.type == DataType.TEXT or d.type == DataType.TEXT_RESULT:
             print("%s: %s" % (d.who, d.data))
         elif d.type == DataType.STATUS:
             print("%s: %s" % (d.who, d.data))

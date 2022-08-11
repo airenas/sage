@@ -13,8 +13,9 @@ class Sender(Enum):
             return "USER"
         if self == Sender.RECOGNIZER:
             return "RECOGNIZER"
-        else:
+        if self == Sender.BOT:
             return "BOT"
+        return "UNKNOWN"
 
 
 class DataType(Enum):
@@ -23,11 +24,28 @@ class DataType(Enum):
     EVENT = 3
     STATUS = 4
     SVG = 5
+    TEXT_RESULT = 6
+
+    def to_str(self):
+        if self == DataType.TEXT:
+            return "TEXT"
+        if self == DataType.AUDIO:
+            return "AUDIO"
+        if self == DataType.EVENT:
+            return "EVENT"
+        if self == DataType.STATUS:
+            return "STATUS"
+        if self == DataType.SVG:
+            return "SVG"
+        if self == DataType.TEXT_RESULT:
+            return "TEXT_RESULT"
+        return "UNKNOWN"
 
 
 class Data:
-    def __init__(self, in_type: DataType, who: Sender = Sender.BOT, data: Any = None):
+    def __init__(self, in_type: DataType, who: Sender = Sender.BOT, data: Any = None, data2: Any = None):
         self.type = in_type
         self.data = data
+        self.data2 = data2
         self.who = who
         self.id = str(uuid.uuid1())

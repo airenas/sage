@@ -41,16 +41,12 @@ class SocketIO:
         asyncio.run_coroutine_threadsafe(self.send(d), self.loop)
 
     async def send(self, d: Data):
-        if d.type == DataType.TEXT:
-            logger.info("sending msg %s" % d.type)
-            await self.sio.emit('message', {"type": "TEXT", "data": str(d.data), "who": d.who.to_str(), "id": d.id})
-        elif d.type == DataType.STATUS:
+        if d.type == DataType.TEXT or d.type == DataType.TEXT_RESULT or d.type == DataType.STATUS \
+                or d.type == DataType.SVG:
             logger.info("sending msg %s" % d.type)
             await self.sio.emit('message',
-                                {"type": "STATUS", "data": str(d.data), "who": d.who.to_str(), "id": d.id})
-        elif d.type == DataType.SVG:
-            logger.info("sending msg %s" % d.type)
-            await self.sio.emit('message', {"type": "SVG", "data": str(d.data), "who": d.who.to_str(), "id": d.id})
+                                {"type": d.type.to_str(), "data": str(d.data), "data2": str(d.data2),
+                                 "who": d.who.to_str(), "id": d.id})
         else:
             logger.warning("Don't know what to do with %s data" % d.type)
 

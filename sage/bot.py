@@ -30,8 +30,8 @@ class CalculatorBot:
                 eq_res = self.__eq_parser.parse(tree)
                 eq_svg = self.__eq_maker.prepare(eq_res)
                 self.__out_func(Data(in_type=DataType.STATUS, data="saying"))
-                self.__out_func(Data(in_type=DataType.SVG, data=eq_svg, who=Sender.BOT))
-                self.__out_func(Data(in_type=DataType.TEXT, data=res, who=Sender.BOT))
+                self.__out_func(Data(in_type=DataType.SVG, data=eq_svg, who=Sender.BOT, data2=res))
+                self.__out_func(Data(in_type=DataType.TEXT_RESULT, data=res, who=Sender.BOT))
         except UnknownLeave as err:
             logger.error(err)
             self.__out_func(Data(in_type=DataType.TEXT, data="Nežinau žodžio %s" % err.string, who=Sender.BOT))
