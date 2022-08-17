@@ -27,7 +27,7 @@ class SocketIO:
         server = self.loop.create_server(app.make_handler(), port=self.__port)
         self.loop.run_until_complete(server)
         self.loop.run_forever()
-        logger.info("Exit socket listener")
+        logger.debug("Exit socket listener")
 
     async def message(self, sid, data):
         if data['type'] == "AUDIO":
@@ -60,5 +60,5 @@ class SocketIO:
         logger.info("disconnect: %s " % sid)
 
     def stop(self):
-        logger.info("stopping socket listener loop")
-        self.loop.stop()
+        logger.debug("stopping socket listener loop")
+        self.loop.call_soon_threadsafe(self.loop.stop)
