@@ -25,12 +25,14 @@ class Runner:
         self.__outputs = []
         self.__input_queue: queue.Queue[Data] = queue.Queue(maxsize=500)
         self.__output_queue: queue.Queue[Data] = queue.Queue(maxsize=500)
-        self.__audio_rec = audio_rec;
+        self.__audio_rec = audio_rec
 
     def start(self):
         self.start_output()
         while True:
             inp = self.__input_queue.get()
+            if inp is None:
+                break
             if inp.type == DataType.TEXT:
                 self.__bot.process(inp.data)
             elif inp.type == DataType.AUDIO:
@@ -41,6 +43,7 @@ class Runner:
                 self.__audio_rec.event(inp.data)
             else:
                 logger.warning("Don't know what to do with %s data" % inp.type)
+        logger.info("Exit run loop")
 
     def start_output(self):
         def run():
@@ -60,10 +63,8 @@ class Runner:
     def add_output_processor(self, proc):
         self.__outputs.append(proc)
 
-
-def handler(signum, frame):
-    logger.info("Exit sage")
-    exit(0)
+    def stop(self):
+        self.__input_queue.put(None)
 
 
 def main(param):
@@ -78,8 +79,6 @@ def main(param):
                         help="URL of Latex equation maker")
     parser.add_argument("--port", nargs='?', default=8007, help="Service port for socketio clients")
     args = parser.parse_args(args=param)
-
-    signal.signal(signal.SIGINT, handler)
 
     def out_func(d: Data):
         runner.add_output(d)
@@ -97,12 +96,20 @@ def main(param):
     def in_func(d: Data):
         runner.add_input(d)
 
+    workers = []
+
+    def start_thread(method):
+        thread = threading.Thread(target=method, daemon=True)
+        thread.start()
+        workers.append(thread)
+
     terminal = TerminalInput(msg_func=in_func)
     threading.Thread(target=terminal.start, daemon=True).start()
-    threading.Thread(target=rec.start, daemon=True).start()
+
+    start_thread(rec.start)
 
     ws_service = SocketIO(msg_func=in_func, port=args.port)
-    threading.Thread(target=ws_service.start, daemon=True).start()
+    start_thread(ws_service.start)
 
     terminal_out = TerminalOutput()
     runner.add_output_processor(terminal_out.process)
@@ -113,7 +120,24 @@ def main(param):
     voice_out = VoiceOutput(tts=tts)
     runner.add_output_processor(voice_out.process)
 
+    exit_c = 0
+
+    def stop_runner(signum, frame):
+        nonlocal exit_c
+        if exit_c == 0:
+            rec.stop()
+            ws_service.stop()
+            runner.stop()
+        else:
+            exit(1)
+        exit_c = exit_c + 1
+
+    signal.signal(signal.SIGINT, stop_runner)
+
     runner.start()
+    for w in workers:
+        w.join()
+    logger.info("Exit sage")
 
 
 if __name__ == "__main__":

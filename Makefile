@@ -11,8 +11,11 @@ install/test-req:
 
 install/deps:
 	sudo apt install -y portaudio19-dev python3-pyaudio
+
+activate:
+	source .venv/bin/activate
 run:
-	python -m sage.run
+	LOG_LEVEL=debug python -m sage.run --tts_key $(tts-key)
 
 run/svg:
 	docker run --rm -p 5030:5030 planqk/latex-renderer:latest
