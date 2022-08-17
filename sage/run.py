@@ -38,15 +38,15 @@ class Runner:
             if inp.type == DataType.TEXT:
                 self.__bot.process(inp.data)
             elif inp.type == DataType.AUDIO:
-                logger.info("got audio %d" % len(inp.data))
+                logger.debug("got audio %d" % len(inp.data))
                 self.__audio_rec.add(inp.data)
             elif inp.type == DataType.EVENT:
-                logger.info("got event %s" % inp.data)
+                logger.debug("got event %s" % inp.data)
                 self.__audio_rec.event(inp.data)
             else:
                 logger.warning("Don't know what to do with %s data" % inp.type)
         th_out.join()
-        logger.info("Exit run loop")
+        logger.debug("Exit run loop")
 
     def start_output(self):
         while True:
@@ -85,6 +85,8 @@ def main(param):
                         help="Use audio player for audio input data processing")
     parser.add_argument("--latex_url", nargs='?', default='http://localhost:5030/renderLatex',
                         help="URL of Latex equation maker")
+    parser.add_argument("--kaldi_url", nargs='?', default='ws://localhost:9090/client/ws/speech',
+                        help="URL of Kaldi Online wrapper")
     parser.add_argument("--port", nargs='?', default=8007, help="Service port for socketio clients")
     args = parser.parse_args(args=param)
 
@@ -94,7 +96,7 @@ def main(param):
     if args.useAudioPlayer:
         rec = Player()
     else:
-        rec = Kaldi(msg_func=out_func)
+        rec = Kaldi(url=args.kaldi_url, msg_func=out_func)
 
     runner = Runner(
         bot=CalculatorBot(out_func=out_func, cfg=Calculator(file="data/calc/grammar.cfg"), parser=ResultParser(),

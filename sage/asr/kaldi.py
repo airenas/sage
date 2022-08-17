@@ -23,7 +23,7 @@ class WsClient:
 
         def start_conn():
             self.ws_conn.run_forever()
-            logger.info("ws conn init exit")
+            logger.debug("ws conn init exit")
 
         threading.Thread(target=start_conn).start()
 
@@ -58,18 +58,18 @@ class WsClient:
         self.ws = ws
 
         def send_data_to_ws():
-            logger.info("run send thread")
+            logger.debug("run send thread")
             while True:
                 data = self.__audio_queue.get()
                 if data is None:
                     break
                 self.ws.send(data, opcode=websocket.ABNF.OPCODE_BINARY)
-            logger.info("exit send thread")
+            logger.debug("exit send thread")
 
         threading.Thread(target=send_data_to_ws).start()
 
     def on_close(self, ws, close_status_code, close_msg):
-        logger.info("closed ws kaldi connection")
+        logger.debug("closed ws kaldi connection")
         self.__audio_queue.put(None)
         txt = self.get_text("")
         if txt:
@@ -81,7 +81,7 @@ class WsClient:
         self.__audio_queue.put(None)
 
     def send(self, data):
-        logger.info("put data to kaldi queue")
+        logger.debug("put data to kaldi queue")
         self.__audio_queue.put(data)
 
     def get_text(self, trans):
@@ -95,7 +95,7 @@ def get_url(url):
 
 
 class Kaldi:
-    def __init__(self, msg_func):
+    def __init__(self, url, msg_func):
         logger.info("Init Kaldi wrapper")
         self.__audio_queue: queue.Queue[bytes] = queue.Queue(maxsize=500)
         self.__txt_queue: queue.Queue[tuple(bool, str)] = queue.Queue(maxsize=500)
@@ -107,7 +107,6 @@ class Kaldi:
         self.next = None
         self.client = None
         self.cl_lock = threading.Lock()
-        url = "ws://localhost:9090/client/ws/speech"
         f_url = get_url(url)
         logger.info("WS URL: %s" % f_url)
         self.url = f_url
@@ -143,7 +142,7 @@ class Kaldi:
                 break
             self.__process(data)
         th.join()
-        logger.info("Exit kaldi recognizer")
+        logger.debug("Exit kaldi recognizer")
 
     def __recognized(self):
         while True:
