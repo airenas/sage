@@ -164,7 +164,7 @@ class Kaldi:
             logger.debug("Got from kaldi(%s) %s" % (final, txt))
             if final:
                 self.msg_func(Data(in_type=DataType.TEXT, who=Sender.RECOGNIZER, data=""))
-                self.msg_func(Data(in_type=DataType.TEXT, who=Sender.USER, data=txt))
+                self.msg_func(Data(in_type=DataType.TEXT_RESULT, who=Sender.RECOGNIZER, data=txt))
             else:
                 self.msg_func(Data(in_type=DataType.TEXT, who=Sender.RECOGNIZER, data=txt + "..."))
         except BaseException as err:

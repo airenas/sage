@@ -4,7 +4,7 @@ import signal
 import sys
 import threading
 
-from sage.api.data import Data, DataType
+from sage.api.data import Data, DataType, Sender
 from sage.aplayer.player import Player
 from sage.asr.kaldi import Kaldi
 from sage.bot import CalculatorBot
@@ -28,7 +28,9 @@ class Runner:
         self.__audio_rec = audio_rec
 
     def start(self):
-        self.start_output()
+        self.add_output_processor(self.resend_recognized)
+        th_out = threading.Thread(target=self.start_output, daemon=True)
+        th_out.start()
         while True:
             inp = self.__input_queue.get()
             if inp is None:
@@ -43,16 +45,16 @@ class Runner:
                 self.__audio_rec.event(inp.data)
             else:
                 logger.warning("Don't know what to do with %s data" % inp.type)
+        th_out.join()
         logger.info("Exit run loop")
 
     def start_output(self):
-        def run():
-            while True:
-                inp = self.__output_queue.get()
-                for out_proc in self.__outputs:
-                    out_proc(inp)
-
-        threading.Thread(target=run, daemon=True).start()
+        while True:
+            inp = self.__output_queue.get()
+            if inp is None:
+                break
+            for out_proc in self.__outputs:
+                out_proc(inp)
 
     def add_input(self, d: Data):
         self.__input_queue.put(d)
@@ -65,6 +67,12 @@ class Runner:
 
     def stop(self):
         self.__input_queue.put(None)
+        self.__output_queue.put(None)
+
+    def resend_recognized(self, d: Data):
+        if d.type == DataType.TEXT_RESULT and d.who == Sender.RECOGNIZER:
+            logger.debug("resend recognized text as user input")
+            self.add_input(Data(in_type=DataType.TEXT, who=Sender.USER, data=d.data))
 
 
 def main(param):
