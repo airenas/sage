@@ -7,12 +7,13 @@ import threading
 from sage.api.data import Data, DataType, Sender
 from sage.aplayer.player import Player
 from sage.asr.kaldi import Kaldi
+from sage.audio2face.player import A2FPlayer
 from sage.bot import CalculatorBot
 from sage.cfg.grammar import Calculator
 from sage.cfg.parser import ResultParser, EqParser
 from sage.io.socket import SocketIO
 from sage.io.terminal import TerminalInput, TerminalOutput
-from sage.io.voice import VoiceOutput
+from sage.io.voice import VoiceOutput, PCPlayer
 from sage.latex.wrapper import LatexWrapper
 from sage.logger import logger
 from sage.tts.intelektika import IntelektikaTTS
@@ -87,6 +88,8 @@ def main(param):
                         help="URL of Latex equation maker")
     parser.add_argument("--kaldi_url", nargs='?', default='ws://localhost:9090/client/ws/speech',
                         help="URL of Kaldi Online wrapper")
+    parser.add_argument("--a2f_url", nargs='?', default='localhost:50051', help="URL of Audio2Face GRPC server")
+    parser.add_argument("--a2f_name", nargs='?', default='SomeFace', help="Name of face for Audio2Face")
     parser.add_argument("--port", nargs='?', default=8007, help="Service port for socketio clients")
     args = parser.parse_args(args=param)
 
@@ -127,7 +130,7 @@ def main(param):
 
     tts = IntelektikaTTS(url="https://sinteze-test.intelektika.lt/synthesis.service/prod/synthesize", key=args.tts_key,
                          voice="laimis")
-    voice_out = VoiceOutput(tts=tts)
+    voice_out = VoiceOutput(tts=tts, player=A2FPlayer(url=args.a2f_url, face_name=args.a2f_name))
     runner.add_output_processor(voice_out.process)
 
     exit_c = 0

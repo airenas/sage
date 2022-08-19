@@ -7,10 +7,19 @@ from sage.api.data import Data, DataType, Sender
 from sage.logger import logger
 
 
+class PCPlayer:
+    def __init__(self):
+        logger.info("Init PC audio player")
+
+    def play(self, audio_data):
+        play(audio_data)
+
+
 class VoiceOutput:
-    def __init__(self, tts):
+    def __init__(self, tts, player):
         logger.info("Init voice output")
         self.tts = tts
+        self.player = player
 
     def process(self, d: Data):
         if d.type == DataType.TEXT or d.type == DataType.TEXT_RESULT:
@@ -18,7 +27,7 @@ class VoiceOutput:
                 try:
                     res = self.tts.convert(d.data)
                     song = AudioSegment.from_file(io.BytesIO(res), format="mp3")
-                    play(song)
+                    self.player.play(song)
                 except BaseException as err:
                     logger.error(err)
         elif d.type == DataType.STATUS or d.type == DataType.SVG:

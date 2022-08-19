@@ -25,6 +25,9 @@ run:
 run/svg:
 	docker run --rm -p 5030:5030 planqk/latex-renderer:latest
 
+run/fake-a2f:
+	LOG_LEVEL=debug python -m sage.audio2face.samples.server
+
 test:
 	pytest -v --log-level=INFO
 #####################################################################################
