@@ -1,7 +1,20 @@
 import grpc
+import numpy as np
+from pydub import AudioSegment
 
 from sage.audio2face.proto import audio2face_pb2_grpc, audio2face_pb2
 from sage.logger import logger
+
+
+# from https://stackoverflow.com/a/66922265/701939
+def pydub_to_np(audio: AudioSegment) -> (np.ndarray, int):
+    """
+    Converts pydub audio segment into np.float32 of shape [duration_in_seconds*sample_rate, channels],
+    where each value is in range [-1.0, 1.0].
+    Returns tuple (audio_np_array, sample_rate).
+    """
+    return np.array(audio.get_array_of_samples(), dtype=np.float32).reshape((-1, audio.channels)) / (
+            1 << (8 * audio.sample_width - 1)), audio.frame_rate
 
 
 class A2FPlayer:
@@ -18,30 +31,27 @@ class A2FPlayer:
             except BaseException as err:
                 logger.error(err)
 
-    def pass_stream(self, stub, audio_data):
-        logger.info("pass stream to audio2face")
+    def pass_stream(self, stub, audio_data: AudioSegment):
+        logger.debug("pass stream to audio2face")
+        data, sample_rate = pydub_to_np(audio_data)
 
         def make_generator():
-            chunk_size = 10000  # bytes # audio_data.frame_rate // 10
+            chunk_size = sample_rate // 10
             start_marker = audio2face_pb2.PushAudioRequestStart(
-                samplerate=audio_data.frame_rate,
+                samplerate=sample_rate,
                 instance_name=self.face_name,
                 block_until_playback_is_finished=True,
             )
             # At first, we send a message with start_marker
             yield audio2face_pb2.PushAudioStreamRequest(start_marker=start_marker)
 
-            data = audio_data.raw_data
-            # Then we send messages with audio_data
             for i in range(len(data) // chunk_size + 1):
-                # time.sleep(sleep_between_chunks)
                 chunk = data[i * chunk_size: i * chunk_size + chunk_size]
-                yield audio2face_pb2.PushAudioStreamRequest(audio_data=chunk)
+                yield audio2face_pb2.PushAudioStreamRequest(audio_data=chunk.tobytes())
 
         request_generator = make_generator()
-        print("Sending audio data...")
         response = stub.PushAudioStream(request_generator)
         if response.success:
-            logger.info("Audio send")
+            logger.info("audio was sent")
         else:
             logger.error(response.message)

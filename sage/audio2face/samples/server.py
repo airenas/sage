@@ -1,6 +1,7 @@
 from concurrent import futures
 
 import grpc
+import numpy as np
 
 from sage.audio2face.proto import audio2face_pb2_grpc, audio2face_pb2
 from sage.logger import logger
@@ -33,8 +34,9 @@ class FakeServicer(audio2face_pb2_grpc.Audio2FaceServicer):
 
         for item in request_iterator:
             audio_data = item.audio_data
+            audio_data = np.frombuffer(item.audio_data, dtype=np.float32)
             logger.info(
-                "Got data len %d" % len(audio_data))
+                "Got data len {} - {} ... ".format(len(audio_data), audio_data[:3]))
 
         logger.info("PushAudioStream request -- DONE")
         return audio2face_pb2.PushAudioResponse(success=True, message="")
