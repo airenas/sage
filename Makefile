@@ -4,6 +4,11 @@ version=0.1
 #####################################################################################
 prepare-env:
 	python -m venv .venv
+#####################################################################################
+prepare/proto: ./sage/audio2face/proto/audio2face_pb2.py
+./sage/audio2face/proto/audio2face_pb2.py: ./sage/audio2face/proto/audio2face.proto
+	python -m grpc_tools.protoc -I=./ --python_out=./ --grpc_python_out=./ $^
+#####################################################################################
 install/req:
 	pip install -r requirements.txt
 install/test-req:
