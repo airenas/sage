@@ -201,6 +201,9 @@ def init_operations() -> dict:
         res[s] = process_skip
     res["SklKair"] = process_skip
     res["KairysSkl"] = process_skl_kair
+    res["SklDes"] = process_skip
+    res["DesinysSkl"] = process_skl_des
+
     res["More"] = process_more
 
     return res
@@ -305,6 +308,31 @@ def process_skl_kair(node: ResultNode):
     node.value = node.nodes[1].value
 
 
+def process_skl_des(node: ResultNode):
+    if (len(node.nodes)) == 4:
+        node.value = exec_simple_op(node.nodes[0:3])
+        return
+    if (len(node.nodes)) == 3:
+        node.value = node.nodes[0].value ** node.nodes[1].value
+        return
+    if (len(node.nodes)) == 2:
+        node.value = node.nodes[0].value
+        return
+    raise NotImplemented(node.name)
+
+
+def exec_simple_op(nodes: List[ResultNode]) -> Any:
+    if nodes[1].name == "Plius":
+        return nodes[0].value + nodes[2].value
+    if nodes[1].name == "Minus":
+        return nodes[0].value - nodes[2].value
+    if nodes[1].name == "Dalyba":
+        return nodes[0].value / nodes[2].value
+    if nodes[1].name == "Daugyba":
+        return nodes[0].value * nodes[2].value
+    raise NoImplemented(nodes[1].name)
+
+
 def process_skl_kair_eq(node: ResultNode):
     v = node.nodes[0].value
     if (len(node.nodes)) > 1:
@@ -325,12 +353,8 @@ def process_more(node: ResultNode):
 
 def process_more_eq(node: ResultNode):
     if (len(node.nodes)) == 3:
-        if node.nodes[1].name == "Plius":
-            op_plius_eq(node)
-            return
-        if node.nodes[1].name == "Minus":
-            op_minus_eq(node)
-            return
+        node.value = exec_simple_op(node.nodes)
+        return
     raise NotImplemented(node.name)
 
 

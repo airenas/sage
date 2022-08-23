@@ -36,6 +36,7 @@ from sage.cfg.parser import ResultParser, EqParser
                           ("tūkstantis šešiasdešimt penki", "1065"),
                           ("du plius du kart penki", "12"),
                           ("skliausteliuose du plius du kart penki", "20"),
+                          ("skliausteliuose trys minus du kart penki", "5"),
                           ("du plius du apskliausta kart penki", "20"),
                           ("du plius du kart penki visa tai apskliausta plius devyni kart du", "30"),
                           ("du pakelta šeštuoju kart penki", "320"),
