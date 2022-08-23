@@ -91,7 +91,9 @@ class EqParser(ResultParser):
         super().__init__()
         logger.info("Init Eq Parser")
         self.leaves_map = init_leaves()
-        self.operations_map = init_operations_eq()
+        self.operations_map = init_operations()
+        for v, k in init_operations_eq().items():
+            self.operations_map[v] = k
 
     def to_str(self, value):
         return str(value)
@@ -113,16 +115,37 @@ def get_nodes(parent, deep):
 
 def init_leaves() -> dict:
     res = dict()
-    res['vienas'] = 1
-    add_to_dict(res, ['du', 'dviejų', 'dvi'], 2)
-    res['trys'] = 3
-    add_to_dict(res, ['keturi', 'ketvirtosios'], 4)
-    add_to_dict(res, ['penki', 'penktosios'], 5)
-    res['šeši'] = 6
-    res['septyni'] = 7
-    res['aštuoni'] = 8
-    res['devyni'] = 9
-    for k, v in {'dešimt': 10, 'dvidešimt': 20, 'trisdešimt': 30, 'keturiasdešimt': 40, 'penkiasdešimt': 50,
+    add_to_dict(res, ['vienas', 'pirmuoju', 'vieno'], 1)
+    add_to_dict(res, ['du', 'dviejų', 'dvi', 'kvadratu', 'antruoju'], 2)
+    add_to_dict(res, ['trys', 'trijų', 'trečiuoju', 'kubu', 'kubiniu'], 3)
+    add_to_dict(res, ['keturi', 'keturių', 'ketvirtosios', 'ketvirtuoju'], 4)
+    add_to_dict(res, ['penki', 'penkių', 'penktosios', 'penktuoju'], 5)
+    add_to_dict(res, ['šeši', 'šešių', 'šeštuoju'], 6)
+    add_to_dict(res, ['septyni', 'septynių', 'septintuoju'], 7)
+    add_to_dict(res, ['aštuoni', 'aštuomnių', 'aštuntuoju'], 8)
+    add_to_dict(res, ['devyni', 'devynių', 'devintuoju'], 9)
+    add_to_dict(res, ['dešimt', 'dešimtuoju'], 10)
+    add_to_dict(res, ['vienuoliktuoju'], 11)
+    add_to_dict(res, ['dvyliktuoju'], 12)
+    add_to_dict(res, ['tryliktuoju'], 13)
+    add_to_dict(res, ['keturioliktuoju'], 14)
+    add_to_dict(res, ['penkioliktuoju'], 15)
+    add_to_dict(res, ['šešioliktuoju'], 16)
+    add_to_dict(res, ['septynioliktuoju'], 17)
+    add_to_dict(res, ['aštuonioliktuoju'], 18)
+    add_to_dict(res, ['devynioliktuoju'], 19)
+    add_to_dict(res, ['dvidešimtuoju'], 20)
+    add_to_dict(res, ['trisdešimtuoju'], 30)
+    add_to_dict(res, ['keturiasdešimtuoju'], 40)
+    add_to_dict(res, ['penkiasdešimtuoju'], 50)
+    add_to_dict(res, ['šešiasdešimtuoju'], 60)
+    add_to_dict(res, ['septyniasdešimtuoju'], 70)
+    add_to_dict(res, ['aštuoniasdešimtuoju'], 80)
+    add_to_dict(res, ['devyniasdešimtuoju'], 90)
+    add_to_dict(res, ["šimtas", "šimtai", 'šimtuoju'], 100)
+    add_to_dict(res, ["tūkstantis", "tūkstančiai", "tūkstančių", 'tūkstantuoju'], 1000)
+    add_to_dict(res, ["milijonas", "milijonai", 'milijonu'], 1000000)
+    for k, v in {'dvidešimt': 20, 'trisdešimt': 30, 'keturiasdešimt': 40, 'penkiasdešimt': 50,
                  'šešiasdešimt': 60, 'septyniasdešimt': 70, 'aštuoniasdešimt': 80, 'devyniasdešimt': 90}.items():
         res[k] = v
     for k, v in {'vienuolika': 11, 'dvylika': 12, 'trylika': 13, 'keturiolika': 14, 'penkiolika': 15,
@@ -131,10 +154,8 @@ def init_leaves() -> dict:
 
     add_to_dict(res, ["plius", 'pridėti', 'atimti', 'minus', 'dalint', 'dalinti', 'dalinta', 'padalint', 'padalinti',
                       'padalinta', 'dauginti', 'dauginta', 'padauginti', 'padauginta', 'kart',
+                      "pakelta", 'pakelti', 'laipsniu',
                       "iš", "kablelis", "skliaustai"], 0)
-    add_to_dict(res, ["šimtas", "šimtai"], 100)
-    add_to_dict(res, ["tūkstantis", "tūkstančiai", "tūkstančių"], 1000)
-    add_to_dict(res, ["milijonas", "milijonai"], 1000000)
     return res
 
 
@@ -147,18 +168,22 @@ def init_operations() -> dict:
     res = dict()
     add_to_dict(res, ["VIENETAS", "DESIMT", "DESIMTYS", "SIMTAS", "TUKSTANTIS",
                       "MILIJONAS", "Israiska", "S", "VIENETASSHAK", 'KABLELIS',
-                      "VIENETASSKAIT", "VIENETASVARD", "VIENUOLIKOS"],
+                      "VIENETASSKAIT", "VIENETASVARD", "VIENUOLIKOS",
+                      "VIENETASLPS", "VienetLps", "SIMTASLPS", "DESIMTYSLPS", "VIENUOLIKOSLPS", "MILIJONASLPS",
+                      "TUKSTANTISLPS"],
                 take_first)
-    add_to_dict(res, ["Vienet", "VienetShak", "VienetSkait", "VienetVard", "SveikojiDal", "Trupmenine", "SingleParen"],
+    add_to_dict(res, ["Vienet", "Vienet2", "VienetShak", "VienetSkait", "VienetVard", "SveikojiDal", "Trupmenine",
+                      "SingleParen"],
                 take_first)
-    add_to_dict(res, ["Desimt", "DesimtShak", "DesimtSkait", "DesimtVard"], process_desimt)
-    add_to_dict(res, ["Simt", "SimtShak", "SimtSkait", "SimtVard"], process_simtai)
-    add_to_dict(res, ["Tukst", "TukstShak", "TukstSkait", "TukstVard"], process_tukst)
-    add_to_dict(res, ["Sveikas", "SveikasShak", "SveikasSkait", "SveikasVard"], process_sveikas)
-    res["Skaicius"] = process_skaicius
-    res["Gilyn"] = process_vienetas
-    res["Reiksme"] = process_vienetas
-    res["Isrneig"] = process_vienetas_neig
+    add_to_dict(res, ["Desimt", "Desimt2", "DesimtShak", "DesimtSkait", "DesimtVard", "DesimtLps"], process_desimt)
+    add_to_dict(res, ["Simt", "Simt2", "SimtShak", "SimtSkait", "SimtVard", "SimtLps"], process_simtai)
+    add_to_dict(res, ["Tukst", "Tukst2", "TukstShak", "TukstSkait", "TukstVard", "TukstLps"], process_tukst)
+    add_to_dict(res, ["Sveikas", "Sveikas2", "SveikasShak", "SveikasSkait", "SveikasVard", "SveikasLps"],
+                process_sveikas)
+    add_to_dict(res, ["Skaicius", "Skaicius2"], process_skaicius)
+    add_to_dict(res, ["Gilyn", "Gilyn2"], process_vienetas)
+    add_to_dict(res, ["Reiksme", "Reiksme2"], process_vienetas)
+    add_to_dict(res, ["Isrneig", "Isrneig2"], process_vienetas_neig)
     res["Isrlps"] = process_vienetas
     res["Isrsak"] = process_vienetas
     res["Isrkart"] = process_op
@@ -166,9 +191,11 @@ def init_operations() -> dict:
     res["Plius"] = process_plius
     res["Minus"] = process_minus
     res["Daugyba"] = process_kart
+    res["Lps"] = process_laipsnis
+    res["Laipsnis"] = process_laipsnis_next
     res["Dalyba"] = process_dalint
     res["Realus"] = process_realus
-    for s in ["Skip", "PLIUS", "MINUS", "DAUGYBA", "DALYBA"]:
+    for s in ["Skip", "PLIUS", "MINUS", "DAUGYBA", "DALYBA", "LAIPSNISPAGRINDAS"]:
         res[s] = process_skip
     res["SklKair"] = process_skip
     res["KairysSkl"] = process_skl_kair
@@ -179,34 +206,15 @@ def init_operations() -> dict:
 
 def init_operations_eq() -> dict:
     res = dict()
-    add_to_dict(res, ["VIENETAS", "DESIMT", "DESIMTYS", "SIMTAS", "TUKSTANTIS",
-                      "MILIJONAS", "Israiska", "S", "VIENETASSHAK", 'KABLELIS',
-                      "VIENETASSKAIT", "VIENETASVARD", "VIENUOLIKOS"],
-                take_first)
-    add_to_dict(res, ["Vienet", "VienetShak", "VienetSkait", "VienetVard", "SveikojiDal", "Trupmenine", "SingleParen"],
-                take_first)
-    add_to_dict(res, ["Desimt", "DesimtShak", "DesimtSkait", "DesimtVard"], process_desimt)
-    add_to_dict(res, ["Simt", "SimtShak", "SimtSkait", "SimtVard"], process_simtai)
-    add_to_dict(res, ["Tukst", "TukstShak", "TukstSkait", "TukstVard"], process_tukst)
-    add_to_dict(res, ["Sveikas", "SveikasShak", "SveikasSkait", "SveikasVard"], process_sveikas)
     res["Skaicius"] = process_skaicius_eq
-    res["Gilyn"] = process_vienetas
-    res["Reiksme"] = process_vienetas
     res["Isrneig"] = process_vienetas_neig_eq
-    res["Isrlps"] = process_vienetas
-    res["Isrsak"] = process_vienetas
-    res["Isrkart"] = process_op
-    res["Israiskaplus"] = process_op
     res["Plius"] = process_plius_eq
     res["Minus"] = process_minus_eq
     res["Daugyba"] = process_kart_eq
     res["Dalyba"] = process_dalint_eq
-    res["Realus"] = process_realus
-    for s in ["Skip", "PLIUS", "MINUS", "DAUGYBA", "DALYBA"]:
-        res[s] = process_skip
-    res["SklKair"] = process_skip
     res["KairysSkl"] = process_skl_kair_eq
     res["More"] = process_more_eq
+    res["Lps"] = process_laipsnis_eq
     return res
 
 
@@ -219,6 +227,26 @@ def process_vienetas_neig(node: ResultNode):
         node.value = 0 - node.nodes[1].value
     else:
         process_vienetas(node)
+
+
+def process_laipsnis(node: ResultNode):
+    node.value = node.nodes[0].value ** node.nodes[1].value
+
+
+def process_laipsnis_eq(node: ResultNode):
+    node.value = "%s^{%s}" % (node.nodes[0].value, node.nodes[1].value)
+
+
+def process_laipsnis_next(node: ResultNode):
+    if len(node.nodes) == 2:
+        if node.nodes[1].node_value == "laipsniu":
+            node.value = node.nodes[0].value
+        elif node.nodes[0].node_value == "minus":
+            node.value = -node.nodes[1].value
+        else:
+            node.value = node.nodes[1].value
+    else:
+        node.value = node.nodes[0].value
 
 
 def process_vienetas_neig_eq(node: ResultNode):

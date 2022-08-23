@@ -13,6 +13,11 @@ def parse(txt: str, parser) -> (str, bool):
 
 
 def test_parse_simple():
+    ok_test("du minus penktuoju laipsniu", "0.03125")
+    ok_test("du penktuoju laipsniu", "32")
+    ok_test("du pakelta trečiuoju", "8")
+    ok_test("penki kvadratu", "25")
+    ok_test("minus du kubu", "-8")
     ok_test("septyniolika plius devyniasdešimt", "107")
     ok_test("vienuolika plius dvylika", "23")
     ok_test("minus vienas", "-1")
@@ -50,6 +55,13 @@ def parser_test(parser, s, v):
 
 
 def test_eq_parse_simple():
+    ok_eq_test("du minus penktuoju laipsniu", "2^{-5}")
+    ok_eq_test("trys šimtuoju", "3^{100}")
+    ok_eq_test("du pakelta trečiuoju", "2^{3}")
+    ok_eq_test("penki kvadratu", "5^{2}")
+    ok_eq_test("minus du kubu", "-2^{3}")
+    ok_eq_test("du tūkstantuoju", "2^{1000}")
+    ok_eq_test("du milijonu", "2^{1000000}")
     ok_eq_test("septyniolika plius devyniasdešimt", "17 + 90")
     ok_eq_test("minus skliaustai du plius keturi", "- \\left( 2 + 4 \\right)")
     ok_eq_test("minus vienas", "- 1")
