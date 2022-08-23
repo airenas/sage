@@ -115,16 +115,16 @@ def get_nodes(parent, deep):
 
 def init_leaves() -> dict:
     res = dict()
-    add_to_dict(res, ['vienas', 'pirmuoju', 'vieno'], 1)
-    add_to_dict(res, ['du', 'dviejų', 'dvi', 'kvadratu', 'antruoju'], 2)
-    add_to_dict(res, ['trys', 'trijų', 'trečiuoju', 'kubu', 'kubiniu'], 3)
-    add_to_dict(res, ['keturi', 'keturių', 'ketvirtosios', 'ketvirtuoju'], 4)
-    add_to_dict(res, ['penki', 'penkių', 'penktosios', 'penktuoju'], 5)
-    add_to_dict(res, ['šeši', 'šešių', 'šeštuoju'], 6)
-    add_to_dict(res, ['septyni', 'septynių', 'septintuoju'], 7)
-    add_to_dict(res, ['aštuoni', 'aštuomnių', 'aštuntuoju'], 8)
-    add_to_dict(res, ['devyni', 'devynių', 'devintuoju'], 9)
-    add_to_dict(res, ['dešimt', 'dešimtuoju'], 10)
+    add_to_dict(res, ['vienas', 'pirmuoju', 'vieno', 'pirmojo'], 1)
+    add_to_dict(res, ['du', 'dviejų', 'dvi', 'kvadratu', 'antruoju', 'antrojo'], 2)
+    add_to_dict(res, ['trys', 'trijų', 'trečiuoju', 'kubu', 'kubiniu', 'trečiojo'], 3)
+    add_to_dict(res, ['keturi', 'keturių', 'ketvirtosios', 'ketvirtuoju', 'ketvirtojo'], 4)
+    add_to_dict(res, ['penki', 'penkių', 'penktosios', 'penktuoju', 'penktojo'], 5)
+    add_to_dict(res, ['šeši', 'šešių', 'šeštuoju', 'šeštojo'], 6)
+    add_to_dict(res, ['septyni', 'septynių', 'septintuoju', 'septintojo'], 7)
+    add_to_dict(res, ['aštuoni', 'aštuomnių', 'aštuntuoju', 'aštuntojo'], 8)
+    add_to_dict(res, ['devyni', 'devynių', 'devintuoju', 'devintojo'], 9)
+    add_to_dict(res, ['dešimt', 'dešimtuoju', 'dešimtojo'], 10)
     add_to_dict(res, ['vienuoliktuoju'], 11)
     add_to_dict(res, ['dvyliktuoju'], 12)
     add_to_dict(res, ['tryliktuoju'], 13)
@@ -145,6 +145,7 @@ def init_leaves() -> dict:
     add_to_dict(res, ["šimtas", "šimtai", 'šimtuoju'], 100)
     add_to_dict(res, ["tūkstantis", "tūkstančiai", "tūkstančių", 'tūkstantuoju'], 1000)
     add_to_dict(res, ["milijonas", "milijonai", 'milijonu'], 1000000)
+
     for k, v in {'dvidešimt': 20, 'trisdešimt': 30, 'keturiasdešimt': 40, 'penkiasdešimt': 50,
                  'šešiasdešimt': 60, 'septyniasdešimt': 70, 'aštuoniasdešimt': 80, 'devyniasdešimt': 90}.items():
         res[k] = v
@@ -155,7 +156,8 @@ def init_leaves() -> dict:
     add_to_dict(res, ["plius", 'pridėti', 'atimti', 'minus', 'dalint', 'dalinti', 'dalinta', 'padalint', 'padalinti',
                       'padalinta', 'dauginti', 'dauginta', 'padauginti', 'padauginta', 'kart',
                       "pakelta", 'pakelti', 'laipsniu',
-                      "iš", "kablelis", "skliaustai"], 0)
+                      "iš", "kablelis", "skliaustai", "skliausteliuose", "šaknis", "apskliausta", "sveikas", "visa",
+                      "tai"], 0)
     return res
 
 

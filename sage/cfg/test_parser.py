@@ -1,88 +1,122 @@
+import pytest
+
 from sage.cfg.grammar import Calculator
 from sage.cfg.parser import ResultParser, EqParser
 
 
-def parse(txt: str, parser) -> (str, bool):
-    cfg = Calculator(file="data/calc/grammar.cfg")
+@pytest.mark.parametrize("txt,exp",
+                         [("du penktuoju laipsniu", "32"),
+                          ("du pakelta trečiuoju", "8"),
+                          ("du minus penktuoju laipsniu", "0.03125"),
+                          ("du penktuoju laipsniu", "32"),
+                          ("du pakelta trečiuoju", "8"),
+                          ("penki kvadratu", "25"),
+                          ("minus du kubu", "-8"),
+                          ("septyniolika plius devyniasdešimt", "107"),
+                          ("vienuolika plius dvylika", "23"),
+                          ("minus vienas", "-1"),
+                          ("skliaustai du plius keturi kart trys", "18"),
+                          ("skliaustai du minus keturi dalinti du", "-1"),
+                          ("dvi ketvirtosios", "0.5"),
+                          ("trys milijonai keturi šimtai tūkstančių šimtas dešimt", "3400110"),
+                          ("tūkstantis", "1000"),
+                          ("du tūkstančiai šimtas dešimt", "2110"),
+                          ("milijonas", "1000000"),
+                          ("du kablelis penki", "2.5"),
+                          ("šeši padalint iš dviejų", "3"),
+                          ("šeši padalint du", "3"),
+                          ("penki plius šeši padalint iš dviejų", "8"),
+                          ("penki plius šeši kart septyni", "47"),
+                          ("du šimtai dvidešimt vienas kart keturi", "884"),
+                          ("dvidešimt du plius trys", "25"),
+                          ("du plius trys", "5"),
+                          ("dešimt plius trys", "13"),
+                          ("dešimt minus trys", "7"),
+                          ("penki padalinta iš dviejų", "2.5"),
+                          ("tūkstantis šešiasdešimt penki", "1065"),
+                          ("du plius du kart penki", "12"),
+                          ("skliausteliuose du plius du kart penki", "20"),
+                          ("du plius du apskliausta kart penki", "20"),
+                          ("du plius du kart penki visa tai apskliausta plius devyni kart du", "30"),
+                          ("du pakelta šeštuoju kart penki", "320"),
+                          ("ketvirtojo laipsnio šaknis iš keturiolikos", "20"),
+                          ("dvidešimt septintojo laipsnio šaknis iš septyniolikos", "1,11"),
+                          ("vienas sveikas viena antroji", "1.5"),
+                          ("dvylika plius šešiasdešimt penki apskliausta pakelta trečiuoju", "456533"),
+                          ("šaknis iš dvylikos plius du", "5,46"),
+                          ("šaknis iš dvylika plius du", "3,74"),
+                          ])
+class TestResultParser:
+    @classmethod
+    def setup_class(cls):
+        cls.cfg = Calculator(file="data/calc/grammar.cfg")
+        cls.parser = ResultParser()
+
+    def test_parse(self, txt, exp):
+        res, ok = parse(self.cfg, self.parser, txt)
+        assert ok
+        assert res == exp
+
+
+@pytest.mark.parametrize("txt,exp",
+                         [("du minus penktuoju laipsniu", "2^{-5}"),
+                          ("du minus penktuoju laipsniu", "2^{-5}"),
+                          ("trys šimtuoju", "3^{100}"),
+                          ("du pakelta trečiuoju", "2^{3}"),
+                          ("penki kvadratu", "5^{2}"),
+                          ("minus du kubu", "-2^{3}"),
+                          ("du tūkstantuoju", "2^{1000}"),
+                          ("du milijonu", "2^{1000000}"),
+                          ("septyniolika plius devyniasdešimt", "17 + 90"),
+                          ("minus skliaustai du plius keturi", "- \\left( 2 + 4 \\right)"),
+                          ("minus vienas", "- 1"),
+                          ("skliaustai du plius keturi dalinti du", "\\frac{\\left( 2 + 4 \\right)}{2}"),
+                          ("du", "2"),
+                          ("du plius trys", "2 + 3"),
+                          ("tūkstantis", "1000"),
+                          ("milijonas", "1000000"),
+                          ("dešimt plius trys", "10 + 3"),
+                          ("dvidešimt du plius trys", "22 + 3"),
+                          ("dešimt minus trys", "10 - 3"),
+                          ("du kablelis penki", "2.5"),
+                          ("du kablelis penki plius keturi", "2.5 + 4"),
+                          ("dvi ketvirtosios", "\\frac{2}{4}"),
+                          ("du tūkstančiai šimtas dešimt", "2110"),
+                          ("šeši padalint iš dviejų", "\\frac{6}{2}"),
+                          ("šeši padalint du", "\\frac{6}{2}"),
+                          ("penki plius šeši padalint iš dviejų", "5 + \\frac{6}{2}"),
+                          ("trys milijonai keturi šimtai tūkstančių šimtas dešimt", "3400110"),
+                          ("du šimtai dvidešimt vienas kart keturi", "221 \\cdot 4"),
+                          ("penki plius šeši kart septyni", "5 + 6 \\cdot 7"),
+                          ("skliaustai du minus keturi dalinti du", "\\frac{\\left( 2 - 4 \\right)}{2}"),
+                          ("skliaustai du plius keturi kart trys", "\\left( 2 + 4 \\right) \\cdot 3"),
+                          ("skliausteliuose du plius du kart penki", "20"),
+                          ("du plius du apskliausta kart penki", "20"),
+                          ("du plius du kart penki visa tai apskliausta plius devyni kart du", "30"),
+                          ("du pakelta šeštuoju kart penki", "320"),
+                          ("ketvirtojo laipsnio šaknis iš keturiolikos", "20"),
+                          ("dvidešimt septintojo laipsnio šaknis iš septyniolikos", "1,11"),
+                          ("vienas sveikas viena antroji", "1.5"),
+                          ("dvylika plius šešiasdešimt penki apskliausta pakelta trečiuoju", "456533"),
+                          ("šaknis iš dvylikos plius du", "5,46"),
+                          ("šaknis iš dvylika plius du", "3,74"),
+                          ])
+class TestEqParser:
+    @classmethod
+    def setup_class(self):
+        self.cfg = Calculator(file="data/calc/grammar.cfg")
+        self.parser = EqParser()
+
+    def test_parse(self, txt, exp):
+        res, ok = parse(self.cfg, self.parser, txt)
+        assert ok
+        assert res == exp
+
+
+def parse(cfg, parser, txt: str) -> (str, bool):
     tree, ok = cfg.parse(txt)
     if not ok:
         return "", False
     elif tree is None:
         return "", False
     return parser.parse(tree), True
-
-
-def test_parse_simple():
-    ok_test("du minus penktuoju laipsniu", "0.03125")
-    ok_test("du penktuoju laipsniu", "32")
-    ok_test("du pakelta trečiuoju", "8")
-    ok_test("penki kvadratu", "25")
-    ok_test("minus du kubu", "-8")
-    ok_test("septyniolika plius devyniasdešimt", "107")
-    ok_test("vienuolika plius dvylika", "23")
-    ok_test("minus vienas", "-1")
-    ok_test("skliaustai du plius keturi kart trys", "18")
-    ok_test("skliaustai du minus keturi dalinti du", "-1")
-    ok_test("dvi ketvirtosios", "0.5")
-    ok_test("trys milijonai keturi šimtai tūkstančių šimtas dešimt", "3400110")
-    ok_test("tūkstantis", "1000")
-    ok_test("du tūkstančiai šimtas dešimt", "2110")
-    ok_test("milijonas", "1000000")
-    ok_test("du kablelis penki", "2.5")
-    ok_test("šeši padalint iš dviejų", "3")
-    ok_test("šeši padalint du", "3")
-    ok_test("penki plius šeši padalint iš dviejų", "8")
-    ok_test("penki plius šeši kart septyni", "47")
-    ok_test("du šimtai dvidešimt vienas kart keturi", "884")
-    ok_test("dvidešimt du plius trys", "25")
-    ok_test("du plius trys", "5")
-    ok_test("dešimt plius trys", "13")
-    ok_test("dešimt minus trys", "7")
-
-
-def ok_test(s, v):
-    parser_test(ResultParser(), s, v)
-
-
-def ok_eq_test(s, v):
-    parser_test(EqParser(), s, v)
-
-
-def parser_test(parser, s, v):
-    res, ok = parse(s, parser)
-    assert ok
-    assert res == v
-
-
-def test_eq_parse_simple():
-    ok_eq_test("du minus penktuoju laipsniu", "2^{-5}")
-    ok_eq_test("trys šimtuoju", "3^{100}")
-    ok_eq_test("du pakelta trečiuoju", "2^{3}")
-    ok_eq_test("penki kvadratu", "5^{2}")
-    ok_eq_test("minus du kubu", "-2^{3}")
-    ok_eq_test("du tūkstantuoju", "2^{1000}")
-    ok_eq_test("du milijonu", "2^{1000000}")
-    ok_eq_test("septyniolika plius devyniasdešimt", "17 + 90")
-    ok_eq_test("minus skliaustai du plius keturi", "- \\left( 2 + 4 \\right)")
-    ok_eq_test("minus vienas", "- 1")
-    ok_eq_test("skliaustai du plius keturi dalinti du", "\\frac{\\left( 2 + 4 \\right)}{2}")
-    ok_eq_test("du", "2")
-    ok_eq_test("du plius trys", "2 + 3")
-    ok_eq_test("tūkstantis", "1000")
-    ok_eq_test("milijonas", "1000000")
-    ok_eq_test("dešimt plius trys", "10 + 3")
-    ok_eq_test("dvidešimt du plius trys", "22 + 3")
-    ok_eq_test("dešimt minus trys", "10 - 3")
-    ok_eq_test("du kablelis penki", "2.5")
-    ok_eq_test("du kablelis penki plius keturi", "2.5 + 4")
-    ok_eq_test("dvi ketvirtosios", "\\frac{2}{4}")
-    ok_eq_test("du tūkstančiai šimtas dešimt", "2110")
-    ok_eq_test("šeši padalint iš dviejų", "\\frac{6}{2}")
-    ok_eq_test("šeši padalint du", "\\frac{6}{2}")
-    ok_eq_test("penki plius šeši padalint iš dviejų", "5 + \\frac{6}{2}")
-    ok_eq_test("trys milijonai keturi šimtai tūkstančių šimtas dešimt", "3400110")
-    ok_eq_test("du šimtai dvidešimt vienas kart keturi", "221 \\cdot 4")
-    ok_eq_test("penki plius šeši kart septyni", "5 + 6 \\cdot 7")
-
-    ok_eq_test("skliaustai du minus keturi dalinti du", "\\frac{\\left( 2 - 4 \\right)}{2}")
-    ok_eq_test("skliaustai du plius keturi kart trys", "\\left( 2 + 4 \\right) \\cdot 3")
