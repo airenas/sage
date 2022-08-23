@@ -30,13 +30,22 @@ class FakeServicer(audio2face_pb2_grpc.Audio2FaceServicer):
         instance_name = first_item.start_marker.instance_name
         samplerate = first_item.start_marker.samplerate
         block_until_playback_is_finished = first_item.start_marker.block_until_playback_is_finished
-        logger.info("PushAudioStream request: [instance_name = {} ; samplerate = {}]".format(instance_name, samplerate))
+        logger.info("PushAudioStream request: [instance_name = {} ; samplerate = {}; block = {}]".format(instance_name,
+                                                                                                         samplerate,
+                                                                                                         block_until_playback_is_finished))
 
-        for item in request_iterator:
-            audio_data = item.audio_data
-            audio_data = np.frombuffer(item.audio_data, dtype=np.float32)
-            logger.info(
-                "Got data len {} - {} ... ".format(len(audio_data), audio_data[:3]))
+        def float_to_pcm16(audio):
+            ints = (audio * (1 << 15)).astype(np.int16)
+            little_endian = ints.astype('<u2')
+            buf = little_endian.tobytes()
+            return buf
+
+        with open("foo.pcm", "wb") as f:
+            for item in request_iterator:
+                audio_data = np.frombuffer(item.audio_data, dtype=np.float32)
+                logger.info(
+                    "Got data len {} - {} ... ".format(len(audio_data), audio_data[:3]))
+                f.write(float_to_pcm16(audio_data))
 
         logger.info("PushAudioStream request -- DONE")
         return audio2face_pb2.PushAudioResponse(success=True, message="")
