@@ -122,8 +122,13 @@ def init_leaves() -> dict:
     res['septyni'] = 7
     res['aštuoni'] = 8
     res['devyni'] = 9
-    res['dešimt'] = 10
-    res['dvidešimt'] = 20
+    for k, v in {'dešimt': 10, 'dvidešimt': 20, 'trisdešimt': 30, 'keturiasdešimt': 40, 'penkiasdešimt': 50,
+                 'šešiasdešimt': 60, 'septyniasdešimt': 70, 'aštuoniasdešimt': 80, 'devyniasdešimt': 90}.items():
+        res[k] = v
+    for k, v in {'vienuolika': 11, 'dvylika': 12, 'trylika': 13, 'keturiolika': 14, 'penkiolika': 15,
+                 'šešiolika': 16, 'septyniolika': 17, 'aštuoniolika': 18, 'devyniolika': 19}.items():
+        res[k] = v
+
     add_to_dict(res, ["plius", "minus", "kart", "padalint", "dalinti", "dalint", "iš", "kablelis", "skliaustai"], 0)
     add_to_dict(res, ["šimtas", "šimtai"], 100)
     add_to_dict(res, ["tūkstantis", "tūkstančiai", "tūkstančių"], 1000)
@@ -140,7 +145,7 @@ def init_operations() -> dict:
     res = dict()
     add_to_dict(res, ["VIENETAS", "DESIMT", "DESIMTYS", "SIMTAS", "TUKSTANTIS",
                       "MILIJONAS", "Israiska", "S", "VIENETASSHAK", 'KABLELIS',
-                      "VIENETASSKAIT", "VIENETASVARD"],
+                      "VIENETASSKAIT", "VIENETASVARD", "VIENUOLIKOS"],
                 take_first)
     add_to_dict(res, ["Vienet", "VienetShak", "VienetSkait", "VienetVard", "SveikojiDal", "Trupmenine", "SingleParen"],
                 take_first)
@@ -173,7 +178,7 @@ def init_operations_eq() -> dict:
     res = dict()
     add_to_dict(res, ["VIENETAS", "DESIMT", "DESIMTYS", "SIMTAS", "TUKSTANTIS",
                       "MILIJONAS", "Israiska", "S", "VIENETASSHAK", 'KABLELIS',
-                      "VIENETASSKAIT", "VIENETASVARD"],
+                      "VIENETASSKAIT", "VIENETASVARD", "VIENUOLIKOS"],
                 take_first)
     add_to_dict(res, ["Vienet", "VienetShak", "VienetSkait", "VienetVard", "SveikojiDal", "Trupmenine", "SingleParen"],
                 take_first)
