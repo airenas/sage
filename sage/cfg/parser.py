@@ -129,7 +129,9 @@ def init_leaves() -> dict:
                  'šešiolika': 16, 'septyniolika': 17, 'aštuoniolika': 18, 'devyniolika': 19}.items():
         res[k] = v
 
-    add_to_dict(res, ["plius", "minus", "kart", "padalint", "dalinti", "dalint", "iš", "kablelis", "skliaustai"], 0)
+    add_to_dict(res, ["plius", 'pridėti', 'atimti', 'minus', 'dalint', 'dalinti', 'dalinta', 'padalint', 'padalinti',
+                      'padalinta', 'dauginti', 'dauginta', 'padauginti', 'padauginta', 'kart',
+                      "iš", "kablelis", "skliaustai"], 0)
     add_to_dict(res, ["šimtas", "šimtai"], 100)
     add_to_dict(res, ["tūkstantis", "tūkstančiai", "tūkstančių"], 1000)
     add_to_dict(res, ["milijonas", "milijonai"], 1000000)
@@ -171,6 +173,7 @@ def init_operations() -> dict:
     res["SklKair"] = process_skip
     res["KairysSkl"] = process_skl_kair
     res["More"] = process_more
+
     return res
 
 
