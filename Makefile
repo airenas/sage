@@ -1,5 +1,6 @@
 -include Makefile.options
 latex-url?=https://sinteze-test.intelektika.lt/latex-renderer/renderLatex
+a2f-url?=localhost:50051
 #####################################################################################
 version=0.1
 #####################################################################################
@@ -21,7 +22,8 @@ install/deps:
 activate:
 	source .venv/bin/activate
 run:
-	LOG_LEVEL=debug python -m sage.run --tts_key $(tts-key) --latex_url $(latex-url)
+	LOG_LEVEL=debug python -m sage.run --tts_key $(tts-key) --latex_url $(latex-url) --a2f_url=$(a2f-url) \
+	--a2f_name=$(a2f-name)
 
 run/svg:
 	docker run --rm -p 5030:5030 planqk/latex-renderer:v1.2.0

@@ -89,7 +89,7 @@ def main(param):
     parser.add_argument("--kaldi_url", nargs='?', default='ws://localhost:9090/client/ws/speech',
                         help="URL of Kaldi Online wrapper")
     parser.add_argument("--a2f_url", nargs='?', default='localhost:50051', help="URL of Audio2Face GRPC server")
-    parser.add_argument("--a2f_name", nargs='?', default='SomeFace', help="Name of face for Audio2Face")
+    parser.add_argument("--a2f_name", nargs='?', default='SomeFace', help="Name of face instance for Audio2Face")
     parser.add_argument("--port", nargs='?', default=8007, help="Service port for socketio clients")
     args = parser.parse_args(args=param)
 

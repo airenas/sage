@@ -19,7 +19,7 @@ def pydub_to_np(audio: AudioSegment) -> (np.ndarray, int):
 
 class A2FPlayer:
     def __init__(self, url, face_name):
-        logger.info("Init Audio2Face Player, URL=%s" % url)
+        logger.info("Init Audio2Face Player, URL=%s, name=%s" % (url, face_name))
         self.url = url
         self.face_name = face_name
 
