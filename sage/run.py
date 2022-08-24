@@ -13,7 +13,7 @@ from sage.cfg.grammar import Calculator
 from sage.cfg.parser import ResultParser, EqParser
 from sage.io.socket import SocketIO
 from sage.io.terminal import TerminalInput, TerminalOutput
-from sage.io.voice import VoiceOutput
+from sage.io.voice import VoiceOutput, PCPlayer
 from sage.latex.wrapper import LatexWrapper
 from sage.logger import logger
 from sage.tts.intelektika import IntelektikaTTS
@@ -84,6 +84,8 @@ def main(param):
     parser.add_argument("--tts_key", nargs='?', default='intelektika', help="TTS key")
     parser.add_argument("--useAudioPlayer", default=False, action=argparse.BooleanOptionalAction,
                         help="Use audio player for audio input data processing")
+    parser.add_argument("--usePCPlayer", default=False, action=argparse.BooleanOptionalAction,
+                        help="output audio to PC instead of Audio2Face")
     parser.add_argument("--latex_url", nargs='?', default='http://localhost:5030/renderLatex',
                         help="URL of Latex equation maker")
     parser.add_argument("--kaldi_url", nargs='?', default='ws://localhost:9090/client/ws/speech',
@@ -133,7 +135,11 @@ def main(param):
 
     tts = IntelektikaTTS(url="https://sinteze-test.intelektika.lt/synthesis.service/prod/synthesize", key=args.tts_key,
                          voice="laimis")
-    voice_out = VoiceOutput(tts=tts, player=A2FPlayer(url=args.a2f_url, face_name=args.a2f_name))
+    if args.usePCPlayer:
+        player = PCPlayer()
+    else:
+        player = A2FPlayer(url=args.a2f_url, face_name=args.a2f_name)
+    voice_out = VoiceOutput(tts=tts, player=player)
     runner.add_output_processor(voice_out.process)
 
     exit_c = 0
