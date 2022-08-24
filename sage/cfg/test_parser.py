@@ -41,12 +41,11 @@ from sage.cfg.parser import ResultParser, EqParser
                           ("du plius du apskliausta kart penki", "20"),
                           ("du plius du kart penki visa tai apskliausta plius devyni kart du", "30"),
                           ("du pakelta šeštuoju kart penki", "320"),
-                          ("ketvirtojo laipsnio šaknis iš keturiolikos", "20"),
-                          ("dvidešimt septintojo laipsnio šaknis iš septyniolikos", "1,11"),
+                          ("ketvirtojo laipsnio šaknis iš dviejų šimtų penkiasdešimt šešių", "4"),
                           ("vienas sveikas viena antroji", "1.5"),
                           ("dvylika plius šešiasdešimt penki apskliausta pakelta trečiuoju", "456533"),
-                          ("šaknis iš dvylikos plius du", "5,46"),
-                          ("šaknis iš dvylika plius du", "3,74"),
+                          ("šaknis iš šešiolikos plius du", "6"),
+                          ("šaknis iš dvylika plius keturi", "4"),
                           ])
 class TestResultParser:
     @classmethod
@@ -57,7 +56,7 @@ class TestResultParser:
     def test_parse(self, txt, exp):
         res, ok = parse(self.cfg, self.parser, txt)
         assert ok
-        assert res == exp
+        assert exp == res
 
 
 @pytest.mark.parametrize("txt,exp",
@@ -96,13 +95,13 @@ class TestResultParser:
                           ("skliausteliuose du plius du kart penki", "\\left( 2 + 2 \\right) \\cdot 5"),
                           ("du plius du apskliausta kart penki", "\left( 2 + 2 \\right) \\cdot 5"),
                           ("du pakelta šeštuoju kart penki", "2^{6} \\cdot 5"),
-                          ("ketvirtojo laipsnio šaknis iš keturiolikos", "20"),
-                          ("dvidešimt septintojo laipsnio šaknis iš septyniolikos", "1,11"),
+                          ("ketvirtojo laipsnio šaknis iš keturiolikos", "\\sqrt[4]{14}"),
+                          ("dvidešimt septintojo laipsnio šaknis iš septyniolikos", "\\sqrt[27]{17}"),
                           ("vienas sveikas viena antroji", "1.5"),
                           ("dvylika plius šešiasdešimt penki apskliausta pakelta trečiuoju",
                            "\\left( 12 + 65 \\right)^{3}"),
-                          ("šaknis iš dvylikos plius du", "5,46"),
-                          ("šaknis iš dvylika plius du", "3,74"),
+                          ("šaknis iš dvylikos plius du", "\\sqrt{12} + 2"),
+                          ("šaknis iš dvylika plius du", "\\sqrt{12 + 2}"),
                           ])
 class TestEqParser:
     @classmethod
