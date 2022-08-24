@@ -266,8 +266,10 @@ def process_laipsnis_next(nodes: List[ResultNode]) -> Any:
             return -nodes[1].value
         else:
             return nodes[1].value
-    else:
-        return nodes[0].value
+    if len(nodes) == 3:
+        if nodes[1].node_value == "laipsniu":
+            return nodes[2].value
+    return nodes[0].value
 
 
 def process_desimt(nodes: List[ResultNode]) -> Any:

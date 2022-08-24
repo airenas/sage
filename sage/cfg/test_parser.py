@@ -46,6 +46,7 @@ from sage.cfg.parser import ResultParser, EqParser
                           ("dvylika plius šešiasdešimt penki apskliausta pakelta trečiuoju", "456533"),
                           ("šaknis iš šešiolikos plius du", "6"),
                           ("šaknis iš dvylika plius keturi", "4"),
+                          ("du dalinti iš du pakelti laipsniu penki", "0.0625")
                           ])
 class TestResultParser:
     @classmethod
@@ -105,6 +106,7 @@ class TestResultParser:
                           ("šaknis iš dvylika plius du", "\\sqrt{12 + 2}"),
                           ("šaknis iš tūkstančio", "\\sqrt{1000}"),
                           ("du sveiki keturios penktosios", "2 \\frac{4}{5}"),
+                          ("du dalinti iš du pakelti laipsniu penki", "\\frac{2}{2^{5}}"),
                           ])
 class TestEqParser:
     @classmethod
