@@ -155,7 +155,7 @@ def init_operations(base_op) -> dict:
     add_to_dict(res, ["VIENETAS", "DESIMT", "DESIMTYS", "SIMTAS", "TUKSTANTIS",
                       "MILIJONAS", "Israiska", "S", "VIENETASSHAK", 'KABLELIS',
                       "VIENETASSKAIT", "VIENETASVARD", "VIENUOLIKOS", "VIENETASSAK", "VIENUOLIKOSSHAK",
-                      "VIENETASLPS", "VienetLps", "SIMTASLPS", "SIMTASSHAK",
+                      "VIENETASLPS", "VienetLps", "SIMTASLPS", "SIMTASSHAK", "DESIMTLPS",
                       "DESIMTYSLPS", "VIENUOLIKOSLPS", "MILIJONASLPS", "MILIJONASSHAK",
                       "TUKSTANTISLPS", "TUKSTANTISSHAK"],
                 take_first)
