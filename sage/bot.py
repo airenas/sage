@@ -1,6 +1,34 @@
+import math
+
 from sage.api.data import Data, DataType, Sender
 from sage.cfg.parser import UnknownLeave
 from sage.logger import logger
+
+
+def round_number(num):
+    value = float(num)
+    if value == round(value):
+        if value > 1000000000:
+            return "labai didelis skaičius"
+        if value < -1000000000:
+            return "labai didelis neigiamas skaičius"
+        if value < 0:
+            return "minus %s" % str(round(-value))
+        return str(round(value))
+    if abs(value) < 0.001:
+        return "praktiškai nulis"
+
+    # truncate last number after comma
+    def truncate(num):
+        res = str(num)
+        dp = res.find('.')
+        if dp > -1 and len(res) > dp + 4:
+            res = res[:dp + 4]
+        return res.rstrip("0")
+
+    if value < 0:
+        return "minus %s" % truncate(-value)
+    return truncate(value)
 
 
 class CalculatorBot:
@@ -31,7 +59,7 @@ class CalculatorBot:
                 eq_svg = self.__eq_maker.prepare(eq_res)
                 self.__out_func(Data(in_type=DataType.STATUS, data="saying"))
                 self.__out_func(Data(in_type=DataType.SVG, data=eq_svg, who=Sender.BOT, data2=res))
-                self.__out_func(Data(in_type=DataType.TEXT_RESULT, data=res, who=Sender.BOT))
+                self.__out_func(Data(in_type=DataType.TEXT_RESULT, data=round_number(res), who=Sender.BOT))
         except UnknownLeave as err:
             logger.error(err)
             self.__out_func(Data(in_type=DataType.TEXT, data="Nežinau žodžio %s" % err.string, who=Sender.BOT))
