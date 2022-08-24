@@ -18,7 +18,7 @@ class UnknownLeave(ParseError):
         self.string = string
 
 
-class NoImplemented(ParseError):
+class NotImplementedOperation(ParseError):
     """Raised when the operation is not implemented"""
 
     def __init__(self, string):
@@ -47,7 +47,7 @@ class ResultParser:
     def __init__(self):
         logger.info("Init Result Parser")
         self.leaves_map = init_leaves()
-        self.operations_map = init_operations()
+        self.operations_map = init_operations(init_base_operations())
 
     def parse(self, tree: nltk.Tree) -> str:
         res_tree = self.map_to_res(tree)
@@ -78,7 +78,7 @@ class ResultParser:
             v = self.operations_map.get(node.nltk_node.label())
             if v is None:
                 raise UnknownOperation(node.nltk_node.label())
-            v(node)
+            node.value = v(node.nodes)
         else:
             v = self.leaves_map.get(node.node_value)
             if v is None:
@@ -91,9 +91,7 @@ class EqParser(ResultParser):
         super().__init__()
         logger.info("Init Eq Parser")
         self.leaves_map = init_leaves()
-        self.operations_map = init_operations()
-        for v, k in init_operations_eq().items():
-            self.operations_map[v] = k
+        self.operations_map = init_operations(init_base_operations_eq())
 
     def to_str(self, value):
         return str(value)
@@ -166,7 +164,31 @@ def add_to_dict(d: Dict, keys: List[str], val: Any):
         d[s] = val
 
 
-def init_operations() -> dict:
+def init_base_operations() -> dict:
+    res = dict()
+    res["Plius"] = op_plius
+    res["Minus"] = op_minus
+    res["Daugyba"] = op_daugint
+    res["Dalyba"] = op_dalint
+    res["Laipsnis"] = op_laipsnis
+    res["Neig"] = op_neig
+    res["Skliaustai"] = op_skliaustai
+    return res
+
+
+def init_base_operations_eq() -> dict:
+    res = dict()
+    res["Plius"] = op_plius_eq
+    res["Minus"] = op_minus_eq
+    res["Daugyba"] = op_daugint_eq
+    res["Dalyba"] = op_dalint_eq
+    res["Laipsnis"] = op_laipsnis_eq
+    res["Neig"] = op_neig_eq
+    res["Skliaustai"] = op_skliaustai_eq
+    return res
+
+
+def init_operations(base_op) -> dict:
     res = dict()
     add_to_dict(res, ["VIENETAS", "DESIMT", "DESIMTYS", "SIMTAS", "TUKSTANTIS",
                       "MILIJONAS", "Israiska", "S", "VIENETASSHAK", 'KABLELIS',
@@ -182,278 +204,231 @@ def init_operations() -> dict:
     add_to_dict(res, ["Tukst", "Tukst2", "TukstShak", "TukstSkait", "TukstVard", "TukstLps"], process_tukst)
     add_to_dict(res, ["Sveikas", "Sveikas2", "SveikasShak", "SveikasSkait", "SveikasVard", "SveikasLps"],
                 process_sveikas)
-    add_to_dict(res, ["Skaicius", "Skaicius2"], process_skaicius)
+    add_to_dict(res, ["Skaicius", "Skaicius2"], with_base(base_op, process_skaicius))
     add_to_dict(res, ["Gilyn", "Gilyn2"], process_vienetas)
     add_to_dict(res, ["Reiksme", "Reiksme2"], process_vienetas)
-    add_to_dict(res, ["Isrneig", "Isrneig2"], process_vienetas_neig)
+    add_to_dict(res, ["Isrneig", "Isrneig2"], with_base(base_op, process_vienetas_neig))
     res["Isrlps"] = process_vienetas
     res["Isrsak"] = process_vienetas
-    res["Isrkart"] = process_op
-    res["Israiskaplus"] = process_op
-    res["Plius"] = process_plius
-    res["Minus"] = process_minus
-    res["Daugyba"] = process_kart
-    res["Lps"] = process_laipsnis
+    res["Isrkart"] = with_base(base_op, process_op)
+    res["Israiskaplus"] = with_base(base_op, process_op)
+    res["Plius"] = process_skip
+    res["Minus"] = process_skip
+    res["Daugyba"] = process_skip
+    res["Lps"] = with_base(base_op, process_laipsnis)
     res["Laipsnis"] = process_laipsnis_next
-    res["Dalyba"] = process_dalint
+    res["Dalyba"] = process_skip
     res["Realus"] = process_realus
     for s in ["Skip", "PLIUS", "MINUS", "DAUGYBA", "DALYBA", "LAIPSNISPAGRINDAS"]:
         res[s] = process_skip
     res["SklKair"] = process_skip
-    res["KairysSkl"] = process_skl_kair
+    res["KairysSkl"] = with_base(base_op, process_skl_kair)
     res["SklDes"] = process_skip
-    res["DesinysSkl"] = process_skl_des
+    res["DesinysSkl"] = with_base(base_op, process_skl_des)
+    res["IsraiskaSkl"] = with_base(base_op, process_skl)
 
-    res["More"] = process_more
+    res["More"] = with_base(base_op, process_more)
 
     return res
 
 
-def init_operations_eq() -> dict:
-    res = dict()
-    res["Skaicius"] = process_skaicius_eq
-    res["Isrneig"] = process_vienetas_neig_eq
-    res["Plius"] = process_plius_eq
-    res["Minus"] = process_minus_eq
-    res["Daugyba"] = process_kart_eq
-    res["Dalyba"] = process_dalint_eq
-    res["KairysSkl"] = process_skl_kair_eq
-    res["More"] = process_more_eq
-    res["Lps"] = process_laipsnis_eq
+def with_base(base, op):
+    def res(n) -> Any:
+        return op(base, n)
+
     return res
 
 
-def process_vienetas(node: ResultNode):
-    node.value = node.nodes[0].value
+def get_op(base, name):
+    res = base.get(name)
+    if res is None:
+        raise UnknownOperation(name)
+    return res
 
 
-def process_vienetas_neig(node: ResultNode):
-    if (len(node.nodes)) == 2:
-        node.value = 0 - node.nodes[1].value
-    else:
-        process_vienetas(node)
+def process_vienetas(nodes: List[ResultNode]) -> Any:
+    return nodes[0].value
 
 
-def process_laipsnis(node: ResultNode):
-    node.value = node.nodes[0].value ** node.nodes[1].value
+def process_vienetas_neig(base_op, nodes: List[ResultNode]) -> Any:
+    if (len(nodes)) == 2:
+        return get_op(base_op, "Neig")(nodes)
+    return process_vienetas(nodes)
 
 
-def process_laipsnis_eq(node: ResultNode):
-    node.value = "%s^{%s}" % (node.nodes[0].value, node.nodes[1].value)
+def process_laipsnis(base_op, nodes: List[ResultNode]) -> Any:
+    return get_op(base_op, "Laipsnis")(nodes)
 
 
-def process_laipsnis_next(node: ResultNode):
-    if len(node.nodes) == 2:
-        if node.nodes[1].node_value == "laipsniu":
-            node.value = node.nodes[0].value
-        elif node.nodes[0].node_value == "minus":
-            node.value = -node.nodes[1].value
+def process_laipsnis_next(nodes: List[ResultNode]) -> Any:
+    if len(nodes) == 2:
+        if nodes[1].node_value == "laipsniu":
+            return nodes[0].value
+        elif nodes[0].node_value == "minus":
+            return -nodes[1].value
         else:
-            node.value = node.nodes[1].value
+            return nodes[1].value
     else:
-        node.value = node.nodes[0].value
+        return nodes[0].value
 
 
-def process_vienetas_neig_eq(node: ResultNode):
-    if (len(node.nodes)) == 2:
-        node.value = "- %s" % node.nodes[1].value
-    else:
-        process_vienetas(node)
-
-
-def process_desimt(node: ResultNode):
+def process_desimt(nodes: List[ResultNode]) -> Any:
     res = 0
-    for i in range(len(node.nodes)):
-        res = res + node.nodes[i].value
-    node.value = res
+    for i in range(len(nodes)):
+        res = res + nodes[i].value
+    return res
 
 
-def process_realus(node: ResultNode):
-    num = "%d.%d" % (node.nodes[0].value, node.nodes[2].value)
+def process_realus(nodes: List[ResultNode]) -> Any:
+    num = "%d.%d" % (nodes[0].value, nodes[2].value)
     res = float(num)
-    node.value = res
+    return res
 
 
-def process_simtai(node: ResultNode):
-    if (len(node.nodes)) == 1:
-        node.value = node.nodes[0].value
-        return
-    if (len(node.nodes)) == 3:
-        node.value = node.nodes[0].value * node.nodes[1].value + node.nodes[2].value
-        return
-    if node.nodes[0].name == "SIMTAS":
-        node.value = node.nodes[0].value + node.nodes[1].value
+def process_simtai(nodes: List[ResultNode]) -> Any:
+    if (len(nodes)) == 1:
+        return nodes[0].value
+    if (len(nodes)) == 3:
+        return nodes[0].value * nodes[1].value + nodes[2].value
+    if nodes[0].name == "SIMTAS":
+        return nodes[0].value + nodes[1].value
     else:
-        node.value = node.nodes[0].value * node.nodes[1].value
+        return nodes[0].value * nodes[1].value
 
 
-def process_skaicius(node: ResultNode):
-    if (len(node.nodes)) == 1:
-        node.value = node.nodes[0].value
-        return
-    node.value = node.nodes[0].value / node.nodes[1].value
+def process_skaicius(base_op, nodes: List[ResultNode]) -> Any:
+    if (len(nodes)) == 1:
+        return nodes[0].value
+    return get_op(base_op, "Dalyba")(nodes[0].value, nodes[1].value)
 
 
-def process_skaicius_eq(node: ResultNode):
-    if (len(node.nodes)) == 1:
-        node.value = node.nodes[0].value
-        return
-    node.value = "\\frac{%s}{%s}" % (node.nodes[0].value, node.nodes[1].value)
+def process_skl_kair(base_op, nodes: List[ResultNode]) -> Any:
+    if (len(nodes)) == 1:
+        return get_op(base_op, "Skliaustai")(nodes[0].value)
+    return get_op(base_op, "Skliaustai")(nodes[1].value)
 
 
-def process_skl_kair(node: ResultNode):
-    if (len(node.nodes)) == 1:
-        node.value = node.nodes[0].value
-        return
-    node.value = node.nodes[1].value
+def process_skl_des(base_op, nodes: List[ResultNode]) -> Any:
+    if (len(nodes)) == 4:
+        return get_op(base_op, "Skliaustai")(exec_simple_op(base_op, nodes[0:3]))
+    if (len(nodes)) == 3:
+        return nodes[0].value ** nodes[1].value
+    if (len(nodes)) == 2:
+        return get_op(base_op, "Skliaustai")(nodes[0].value)
+    raise NotImplementedOperation("process_skl_des")
 
 
-def process_skl_des(node: ResultNode):
-    if (len(node.nodes)) == 4:
-        node.value = exec_simple_op(node.nodes[0:3])
-        return
-    if (len(node.nodes)) == 3:
-        node.value = node.nodes[0].value ** node.nodes[1].value
-        return
-    if (len(node.nodes)) == 2:
-        node.value = node.nodes[0].value
-        return
-    raise NotImplemented(node.name)
+def process_skl(base_op, nodes: List[ResultNode]) -> Any:
+    if nodes[0].name == "S":
+        return get_op(base_op, "Skliaustai")(nodes[0].value)
+    elif len(nodes) == 2:
+        return get_op(base_op, "Skliaustai")(nodes[0].value)
+    if (len(nodes)) == 4:
+        return get_op(base_op, "Skliaustai")(exec_simple_op(base_op, nodes[0:3]))
+    if (len(nodes)) == 3:
+        return exec_simple_op(base_op, nodes[0:3])
+    raise NotImplementedOperation("process_skl")
 
 
-def exec_simple_op(nodes: List[ResultNode]) -> Any:
-    if nodes[1].name == "Plius":
-        return nodes[0].value + nodes[2].value
-    if nodes[1].name == "Minus":
-        return nodes[0].value - nodes[2].value
+def exec_simple_op(base_op, nodes: List[ResultNode]) -> Any:
     if nodes[1].name == "Dalyba":
-        return nodes[0].value / nodes[2].value
-    if nodes[1].name == "Daugyba":
-        return nodes[0].value * nodes[2].value
-    raise NoImplemented(nodes[1].name)
+        return get_op(base_op, nodes[1].name)(nodes[0].value, nodes[2].value)
+    return get_op(base_op, nodes[1].name)(nodes)
 
 
-def process_skl_kair_eq(node: ResultNode):
-    v = node.nodes[0].value
-    if (len(node.nodes)) > 1:
-        v = node.nodes[1].value
-    node.value = "\\left( %s \\right)" % v
+def process_more(base_op, nodes: List[ResultNode]) -> Any:
+    if (len(nodes)) == 3:
+        return exec_simple_op(base_op, nodes)
+    raise NotImplementedOperation("process_more")
 
 
-def process_more(node: ResultNode):
-    if (len(node.nodes)) == 3:
-        if node.nodes[1].name == "Plius":
-            op_plius(node)
-            return
-        if node.nodes[1].name == "Minus":
-            op_minus(node)
-            return
-    raise NotImplemented(node.name)
-
-
-def process_more_eq(node: ResultNode):
-    if (len(node.nodes)) == 3:
-        node.value = exec_simple_op(node.nodes)
-        return
-    raise NotImplemented(node.name)
-
-
-def process_tukst(node: ResultNode):
-    if (len(node.nodes)) == 1:
-        node.value = node.nodes[0].value
-        return
-    if (len(node.nodes)) == 3:
-        node.value = node.nodes[0].value * node.nodes[1].value + node.nodes[2].value
-        return
-    if node.nodes[0].name == "TUKSTANTIS":
-        node.value = node.nodes[0].value + node.nodes[1].value
+def process_tukst(nodes: List[ResultNode]) -> Any:
+    if (len(nodes)) == 1:
+        return nodes[0].value
+    if (len(nodes)) == 3:
+        return nodes[0].value * nodes[1].value + nodes[2].value
+    if nodes[0].name == "TUKSTANTIS":
+        return nodes[0].value + nodes[1].value
     else:
-        node.value = node.nodes[0].value * node.nodes[1].value
+        return nodes[0].value * nodes[1].value
 
 
-def process_sveikas(node: ResultNode):
-    if (len(node.nodes)) == 1:
-        node.value = node.nodes[0].value
-        return
-    if (len(node.nodes)) == 3:
-        node.value = node.nodes[0].value * node.nodes[1].value + node.nodes[2].value
-        return
-    if node.nodes[0].name == "MILIJONAS":
-        node.value = node.nodes[0].value + node.nodes[1].value
+def process_sveikas(nodes: List[ResultNode]) -> Any:
+    if (len(nodes)) == 1:
+        return nodes[0].value
+    if (len(nodes)) == 3:
+        return nodes[0].value * nodes[1].value + nodes[2].value
+    if nodes[0].name == "MILIJONAS":
+        return nodes[0].value + nodes[1].value
     else:
-        node.value = node.nodes[0].value * node.nodes[1].value
+        return nodes[0].value * nodes[1].value
 
 
-def process_skip(node: ResultNode):
-    pass
+def process_skip(nodes: List[ResultNode]) -> Any:
+    return ""
 
 
-def take_first(node: ResultNode):
-    node.value = node.nodes[0].value
+def take_first(nodes: List[ResultNode]) -> Any:
+    return nodes[0].value
 
 
-def process_op(node: ResultNode):
-    if len(node.nodes) >= 3:
-        node.nodes[1].operation(node)
-        return
-    node.value = node.nodes[0].value
+def process_op(base_op, nodes: List[ResultNode]) -> Any:
+    if len(nodes) >= 3:
+        return exec_simple_op(base_op, nodes)
+    return nodes[0].value
 
 
-def op_plius(node: ResultNode):
-    node.value = node.nodes[0].value + node.nodes[2].value
+def op_plius(nodes: List[ResultNode]) -> Any:
+    return nodes[0].value + nodes[2].value
 
 
-def process_plius(node: ResultNode):
-    node.operation = op_plius
+def op_plius_eq(nodes: List[ResultNode]) -> Any:
+    return "%s + %s" % (nodes[0].value, nodes[2].value)
 
 
-def op_plius_eq(node: ResultNode):
-    node.value = "%s + %s" % (node.nodes[0].value, node.nodes[2].value)
+def op_dalint(v1, v2) -> Any:
+    return v1 / v2
 
 
-def process_plius_eq(node: ResultNode):
-    node.operation = op_plius_eq
+def op_daugint(nodes: List[ResultNode]) -> Any:
+    return nodes[0].value * nodes[2].value
 
 
-def process_kart(node: ResultNode):
-    def op(node_p: ResultNode):
-        node_p.value = node_p.nodes[0].value * node_p.nodes[2].value
-
-    node.operation = op
+def op_daugint_eq(nodes: List[ResultNode]) -> Any:
+    return "%s \\cdot %s" % (nodes[0].value, nodes[2].value)
 
 
-def process_kart_eq(node: ResultNode):
-    def op(node_p: ResultNode):
-        node_p.value = "%s \\cdot %s" % (node_p.nodes[0].value, node_p.nodes[2].value)
-
-    node.operation = op
+def op_dalint_eq(v1, v2) -> Any:
+    return "\\frac{%s}{%s}" % (v1, v2)
 
 
-def process_dalint(node: ResultNode):
-    def op(node_p: ResultNode):
-        node_p.value = node_p.nodes[0].value / node_p.nodes[2].value
-
-    node.operation = op
+def op_minus(nodes: List[ResultNode]) -> Any:
+    return nodes[0].value - nodes[2].value
 
 
-def process_dalint_eq(node: ResultNode):
-    def op(node_p: ResultNode):
-        node_p.value = "\\frac{%s}{%s}" % (node_p.nodes[0].value, node_p.nodes[2].value)
-
-    node.operation = op
+def op_minus_eq(nodes: List[ResultNode]) -> Any:
+    return "%s - %s" % (nodes[0].value, nodes[2].value)
 
 
-def op_minus(node: ResultNode):
-    node.value = node.nodes[0].value - node.nodes[2].value
+def op_laipsnis(nodes: List[ResultNode]) -> Any:
+    return nodes[0].value ** nodes[1].value
 
 
-def process_minus(node: ResultNode):
-    node.operation = op_minus
+def op_laipsnis_eq(nodes: List[ResultNode]) -> Any:
+    return "%s^{%s}" % (nodes[0].value, nodes[1].value)
 
 
-def op_minus_eq(node: ResultNode):
-    node.value = "%s - %s" % (node.nodes[0].value, node.nodes[2].value)
+def op_neig(nodes: List[ResultNode]) -> Any:
+    return 0 - nodes[1].value
 
 
-def process_minus_eq(node: ResultNode):
-    node.operation = op_minus_eq
+def op_neig_eq(nodes: List[ResultNode]) -> Any:
+    return "-%s" % (nodes[1].value)
+
+
+def op_skliaustai(v) -> Any:
+    return v
+
+
+def op_skliaustai_eq(v) -> Any:
+    return "\\left( %s \\right)" % v
