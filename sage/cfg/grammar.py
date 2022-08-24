@@ -14,7 +14,7 @@ class Calculator:
         try:
             res = list(self.__parser.parse(txt.split()))
         except BaseException as err:
-            logger.error(err)
+            logger.critical(err, exc_info=True)
             return None, False
         if len(res) > 0:
             return res[0], True

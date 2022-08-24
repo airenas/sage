@@ -17,6 +17,7 @@ class UnknownLeave(ParseError):
     def __init__(self, string):
         self.message = "Unknown `%s`" % string
         self.string = string
+        super().__init__(self.message)
 
 
 class NotImplementedOperation(ParseError):
@@ -25,11 +26,16 @@ class NotImplementedOperation(ParseError):
     def __init__(self, string):
         self.message = "Not implemented `%s`" % string
         self.string = string
+        super().__init__(self.message)
 
 
 class UnknownOperation(ParseError):
-    """Raised when the label is undefined"""
-    pass
+    """Raised when the operation is unknown"""
+
+    def __init__(self, string):
+        self.message = "Unknown operation `%s`" % string
+        self.string = string
+        super().__init__(self.message)
 
 
 class ResultNode:
@@ -114,16 +120,17 @@ def get_nodes(parent, deep):
 
 def init_leaves() -> dict:
     res = dict()
-    add_to_dict(res, ['vienas', 'pirmuoju', 'vieno', 'pirmojo'], 1)
-    add_to_dict(res, ['du', 'dviejų', 'dvi', 'kvadratu', 'antruoju', 'antrojo'], 2)
-    add_to_dict(res, ['trys', 'trijų', 'trečiuoju', 'kubu', 'kubiniu', 'trečiojo'], 3)
-    add_to_dict(res, ['keturi', 'keturių', 'ketvirtosios', 'ketvirtuoju', 'ketvirtojo'], 4)
-    add_to_dict(res, ['penki', 'penkių', 'penktosios', 'penktuoju', 'penktojo'], 5)
-    add_to_dict(res, ['šeši', 'šešių', 'šeštuoju', 'šeštojo'], 6)
-    add_to_dict(res, ['septyni', 'septynių', 'septintuoju', 'septintojo'], 7)
-    add_to_dict(res, ['aštuoni', 'aštuomnių', 'aštuntuoju', 'aštuntojo'], 8)
-    add_to_dict(res, ['devyni', 'devynių', 'devintuoju', 'devintojo'], 9)
-    add_to_dict(res, ['dešimt', 'dešimtuoju', 'dešimtojo'], 10)
+
+    add_to_dict(res, ['vienas', 'pirmuoju', 'vieno', 'pirmojo', 'viena'], 1)
+    add_to_dict(res, ['du', 'dviejų', 'dvi', 'kvadratu', 'antruoju', 'antrojo', 'antroji', 'antrosios', 'antro'], 2)
+    add_to_dict(res, ['trys', 'trijų', 'trečiuoju', 'kubu', 'kubiniu', 'trečiojo', 'trejos', 'trečiosios', 'trečio'], 3)
+    add_to_dict(res, ['keturi', 'keturių', 'ketvirtosios', 'ketvirtuoju', 'ketvirtojo', 'keturios', 'ketvirto'], 4)
+    add_to_dict(res, ['penki', 'penkių', 'penktosios', 'penktuoju', 'penktojo', 'penkios', 'penkto'], 5)
+    add_to_dict(res, ['šeši', 'šešių', 'šeštuoju', 'šeštojo', 'šešios', 'šešto'], 6)
+    add_to_dict(res, ['septyni', 'septynių', 'septintuoju', 'septintojo', 'septynios', 'septinto'], 7)
+    add_to_dict(res, ['aštuoni', 'aštuomnių', 'aštuntuoju', 'aštuntojo', 'aštuonios', 'aštunto'], 8)
+    add_to_dict(res, ['devyni', 'devynių', 'devintuoju', 'devintojo', 'devynios', 'devinto'], 9)
+    add_to_dict(res, ['dešimt', 'dešimtuoju', 'dešimtojo', 'dešimto'], 10)
     add_to_dict(res, ['vienuoliktuoju', 'vienuolikos'], 11)
     add_to_dict(res, ['dvyliktuoju', 'dvylikos'], 12)
     add_to_dict(res, ['tryliktuoju', 'trylikos'], 13)
@@ -141,9 +148,9 @@ def init_leaves() -> dict:
     add_to_dict(res, ['septyniasdešimtuoju'], 70)
     add_to_dict(res, ['aštuoniasdešimtuoju'], 80)
     add_to_dict(res, ['devyniasdešimtuoju'], 90)
-    add_to_dict(res, ["šimtas", "šimtai", 'šimtuoju', 'šimtų'], 100)
-    add_to_dict(res, ["tūkstantis", "tūkstančiai", "tūkstančių", 'tūkstantuoju'], 1000)
-    add_to_dict(res, ["milijonas", "milijonai", 'milijonu'], 1000000)
+    add_to_dict(res, ["šimtas", "šimtai", 'šimtuoju', 'šimtų', "šimto"], 100)
+    add_to_dict(res, ["tūkstantis", "tūkstančiai", "tūkstančių", 'tūkstantuoju', "tūkstančio"], 1000)
+    add_to_dict(res, ["milijonas", "milijonai", 'milijonu', "milijono"], 1000000)
 
     for k, v in {'dvidešimt': 20, 'trisdešimt': 30, 'keturiasdešimt': 40, 'penkiasdešimt': 50,
                  'šešiasdešimt': 60, 'septyniasdešimt': 70, 'aštuoniasdešimt': 80, 'devyniasdešimt': 90}.items():
@@ -155,8 +162,8 @@ def init_leaves() -> dict:
     add_to_dict(res, ["plius", 'pridėti', 'atimti', 'minus', 'dalint', 'dalinti', 'dalinta', 'padalint', 'padalinti',
                       'padalinta', 'dauginti', 'dauginta', 'padauginti', 'padauginta', 'kart',
                       "pakelta", 'pakelti', 'laipsniu', 'laipsnio',
-                      "iš", "kablelis", "skliaustai", "skliausteliuose", "šaknis", "apskliausta", "sveikas", "visa",
-                      "tai"], 0)
+                      "iš", "kablelis", "skliaustai", "skliausteliuose", "šaknis", "apskliausta", "sveikas", "sveiki",
+                      "visa", "tai"], 0)
     return res
 
 
@@ -175,6 +182,7 @@ def init_base_operations() -> dict:
     res["Neig"] = op_neig
     res["Skliaustai"] = op_skliaustai
     res["Saknis"] = op_saknis
+    res["SkaicSuTrupmena"] = op_plius
     return res
 
 
@@ -188,6 +196,7 @@ def init_base_operations_eq() -> dict:
     res["Neig"] = op_neig_eq
     res["Skliaustai"] = op_skliaustai_eq
     res["Saknis"] = op_saknis_eq
+    res["SkaicSuTrupmena"] = op_skaic_su_trupm_eq
     return res
 
 
@@ -197,8 +206,8 @@ def init_operations(base_op) -> dict:
                       "MILIJONAS", "Israiska", "S", "VIENETASSHAK", 'KABLELIS',
                       "VIENETASSKAIT", "VIENETASVARD", "VIENUOLIKOS", "VIENETASSAK", "VIENUOLIKOSSHAK",
                       "VIENETASLPS", "VienetLps", "SIMTASLPS", "SIMTASSHAK",
-                      "DESIMTYSLPS", "VIENUOLIKOSLPS", "MILIJONASLPS",
-                      "TUKSTANTISLPS"],
+                      "DESIMTYSLPS", "VIENUOLIKOSLPS", "MILIJONASLPS", "MILIJONASSHAK",
+                      "TUKSTANTISLPS", "TUKSTANTISSHAK"],
                 take_first)
     add_to_dict(res, ["Vienet", "Vienet2", "VienetShak", "VienetSkait", "VienetVard", "SveikojiDal", "Trupmenine",
                       "SingleParen", "VienetSak", "Saknlps"],
@@ -220,13 +229,15 @@ def init_operations(base_op) -> dict:
     res["Lps"] = with_base(base_op, process_laipsnis)
     res["Laipsnis"] = process_laipsnis_next
     res["Realus"] = process_realus
-    add_to_dict(res, ["SklDes", "Skip", "PLIUS", "MINUS", "DAUGYBA", "DALYBA", "LAIPSNISPAGRINDAS",
+    add_to_dict(res, ["SklDes", "Skip", "PLIUS", "MINUS", "DAUGYBA", "DALYBA", "LAIPSNISPAGRINDAS", "KABLELISV2",
                       "Plius", "Minus", "Dalyba", "Daugyba", "SklKair", "SAKNISPAGRINDAS", "Saknis"], process_skip)
     res["KairysSkl"] = with_base(base_op, process_skl_kair)
     res["DesinysSkl"] = with_base(base_op, process_skl_des)
     res["IsraiskaSkl"] = with_base(base_op, process_skl)
     res["Sak"] = with_base(base_op, process_saknis)
     res["SaknLong"] = with_base(base_op, process_saknis_l)
+    res["TrupmenineV2"] = with_base(base_op, process_trupmena)
+    res["RealusV2"] = with_base(base_op, process_realus_v2)
 
     res["More"] = with_base(base_op, process_more)
 
@@ -283,6 +294,18 @@ def process_saknis_l(base_op, nodes: List[ResultNode]) -> Any:
     if len(nodes) == 4:
         return get_op(base_op, "Daugyba")(nodes[0].value, get_op(base_op, "Saknis")(nodes[3].value, nodes[1].value))
     raise NotImplementedOperation("process_saknis_l")
+
+
+def process_trupmena(base_op, nodes: List[ResultNode]) -> Any:
+    if len(nodes) == 2:
+        return get_op(base_op, "Dalyba")(nodes[0].value, nodes[1].value)
+    raise NotImplementedOperation("process_trupmena")
+
+
+def process_realus_v2(base_op, nodes: List[ResultNode]) -> Any:
+    if len(nodes) == 3:
+        return get_op(base_op, "SkaicSuTrupmena")(nodes[0].value, nodes[2].value)
+    raise NotImplementedOperation("process_realus_v2")
 
 
 def process_laipsnis_next(nodes: List[ResultNode]) -> Any:
@@ -356,11 +379,7 @@ def process_skl(base_op, nodes: List[ResultNode]) -> Any:
 
 
 def exec_simple_op(base_op, nodes: List[ResultNode]) -> Any:
-    if nodes[1].name == "Dalyba":
-        return get_op(base_op, nodes[1].name)(nodes[0].value, nodes[2].value)
-    if nodes[1].name == "Daugyba":
-        return get_op(base_op, nodes[1].name)(nodes[0].value, nodes[2].value)
-    return get_op(base_op, nodes[1].name)(nodes)
+    return get_op(base_op, nodes[1].name)(nodes[0].value, nodes[2].value)
 
 
 def process_more(base_op, nodes: List[ResultNode]) -> Any:
@@ -405,12 +424,16 @@ def process_op(base_op, nodes: List[ResultNode]) -> Any:
     return nodes[0].value
 
 
-def op_plius(nodes: List[ResultNode]) -> Any:
-    return nodes[0].value + nodes[2].value
+def op_plius(v1, v2) -> Any:
+    return v1 + v2
 
 
-def op_plius_eq(nodes: List[ResultNode]) -> Any:
-    return "%s + %s" % (nodes[0].value, nodes[2].value)
+def op_plius_eq(v1, v2) -> Any:
+    return "%s + %s" % (v1, v2)
+
+
+def op_skaic_su_trupm_eq(v1, v2) -> Any:
+    return "%s %s" % (v1, v2)
 
 
 def op_dalint(v1, v2) -> Any:
@@ -429,12 +452,12 @@ def op_dalint_eq(v1, v2) -> Any:
     return "\\frac{%s}{%s}" % (v1, v2)
 
 
-def op_minus(nodes: List[ResultNode]) -> Any:
-    return nodes[0].value - nodes[2].value
+def op_minus(v1, v2) -> Any:
+    return v1 - v2
 
 
-def op_minus_eq(nodes: List[ResultNode]) -> Any:
-    return "%s - %s" % (nodes[0].value, nodes[2].value)
+def op_minus_eq(v1, v2) -> Any:
+    return "%s - %s" % (v1, v2)
 
 
 def op_laipsnis(nodes: List[ResultNode]) -> Any:

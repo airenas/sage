@@ -60,7 +60,8 @@ class TestResultParser:
 
 
 @pytest.mark.parametrize("txt,exp",
-                         [("du plius du kart penki visa tai apskliausta plius devyni kart du", "\\left( 2 + 2 \\cdot 5 \\right) + 9 \\cdot 2"),
+                         [("du plius du kart penki visa tai apskliausta plius devyni kart du",
+                           "\\left( 2 + 2 \\cdot 5 \\right) + 9 \\cdot 2"),
                           ("du minus penktuoju laipsniu", "2^{-5}"),
                           ("du minus penktuoju laipsniu", "2^{-5}"),
                           ("trys šimtuoju", "3^{100}"),
@@ -93,15 +94,17 @@ class TestResultParser:
                           ("skliaustai du minus keturi dalinti du", "\\frac{\\left( 2 - 4 \\right)}{2}"),
                           ("skliaustai du plius keturi kart trys", "\\left( 2 + 4 \\right) \\cdot 3"),
                           ("skliausteliuose du plius du kart penki", "\\left( 2 + 2 \\right) \\cdot 5"),
-                          ("du plius du apskliausta kart penki", "\left( 2 + 2 \\right) \\cdot 5"),
+                          ("du plius du apskliausta kart penki", "\\left( 2 + 2 \\right) \\cdot 5"),
                           ("du pakelta šeštuoju kart penki", "2^{6} \\cdot 5"),
                           ("ketvirtojo laipsnio šaknis iš keturiolikos", "\\sqrt[4]{14}"),
                           ("dvidešimt septintojo laipsnio šaknis iš septyniolikos", "\\sqrt[27]{17}"),
-                          ("vienas sveikas viena antroji", "1.5"),
+                          ("vienas sveikas viena antroji", "1 \\frac{1}{2}"),
                           ("dvylika plius šešiasdešimt penki apskliausta pakelta trečiuoju",
                            "\\left( 12 + 65 \\right)^{3}"),
                           ("šaknis iš dvylikos plius du", "\\sqrt{12} + 2"),
                           ("šaknis iš dvylika plius du", "\\sqrt{12 + 2}"),
+                          ("šaknis iš tūkstančio", "\\sqrt{1000}"),
+                          ("du sveiki keturios penktosios", "2 \\frac{4}{5}"),
                           ])
 class TestEqParser:
     @classmethod
