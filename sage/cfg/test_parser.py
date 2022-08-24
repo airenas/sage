@@ -51,7 +51,7 @@ class TestResultParser:
     @classmethod
     def setup_class(cls):
         cls.cfg = Calculator(file="data/calc/grammar.cfg")
-        cls.parser = ResultParser()
+        cls.parser = ResultParser(leaves_map=cls.cfg.leaves_map())
 
     def test_parse(self, txt, exp):
         res, ok = parse(self.cfg, self.parser, txt)
@@ -108,9 +108,9 @@ class TestResultParser:
                           ])
 class TestEqParser:
     @classmethod
-    def setup_class(self):
-        self.cfg = Calculator(file="data/calc/grammar.cfg")
-        self.parser = EqParser()
+    def setup_class(cls):
+        cls.cfg = Calculator(file="data/calc/grammar.cfg")
+        cls.parser = EqParser(leaves_map=cls.cfg.leaves_map())
 
     def test_parse(self, txt, exp):
         res, ok = parse(self.cfg, self.parser, txt)

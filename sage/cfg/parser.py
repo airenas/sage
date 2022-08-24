@@ -51,9 +51,9 @@ class ResultNode:
 
 
 class ResultParser:
-    def __init__(self):
+    def __init__(self, leaves_map):
         logger.info("Init Result Parser")
-        self.leaves_map = init_leaves()
+        self.leaves_map = leaves_map
         self.operations_map = init_operations(init_base_operations())
 
     def parse(self, tree: nltk.Tree) -> str:
@@ -94,10 +94,9 @@ class ResultParser:
 
 
 class EqParser(ResultParser):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, leaves_map):
+        super().__init__(leaves_map)
         logger.info("Init Eq Parser")
-        self.leaves_map = init_leaves()
         self.operations_map = init_operations(init_base_operations_eq())
 
     def to_str(self, value):
@@ -116,55 +115,6 @@ def get_nodes(parent, deep):
             get_nodes(node, deep + 1)
         else:
             print("Word:", node)
-
-
-def init_leaves() -> dict:
-    res = dict()
-
-    add_to_dict(res, ['vienas', 'pirmuoju', 'vieno', 'pirmojo', 'viena'], 1)
-    add_to_dict(res, ['du', 'dviejų', 'dvi', 'kvadratu', 'antruoju', 'antrojo', 'antroji', 'antrosios', 'antro'], 2)
-    add_to_dict(res, ['trys', 'trijų', 'trečiuoju', 'kubu', 'kubiniu', 'trečiojo', 'trejos', 'trečiosios', 'trečio'], 3)
-    add_to_dict(res, ['keturi', 'keturių', 'ketvirtosios', 'ketvirtuoju', 'ketvirtojo', 'keturios', 'ketvirto'], 4)
-    add_to_dict(res, ['penki', 'penkių', 'penktosios', 'penktuoju', 'penktojo', 'penkios', 'penkto'], 5)
-    add_to_dict(res, ['šeši', 'šešių', 'šeštuoju', 'šeštojo', 'šešios', 'šešto'], 6)
-    add_to_dict(res, ['septyni', 'septynių', 'septintuoju', 'septintojo', 'septynios', 'septinto'], 7)
-    add_to_dict(res, ['aštuoni', 'aštuomnių', 'aštuntuoju', 'aštuntojo', 'aštuonios', 'aštunto'], 8)
-    add_to_dict(res, ['devyni', 'devynių', 'devintuoju', 'devintojo', 'devynios', 'devinto'], 9)
-    add_to_dict(res, ['dešimt', 'dešimtuoju', 'dešimtojo', 'dešimto'], 10)
-    add_to_dict(res, ['vienuoliktuoju', 'vienuolikos'], 11)
-    add_to_dict(res, ['dvyliktuoju', 'dvylikos'], 12)
-    add_to_dict(res, ['tryliktuoju', 'trylikos'], 13)
-    add_to_dict(res, ['keturioliktuoju', 'keturiolikos'], 14)
-    add_to_dict(res, ['penkioliktuoju', 'penkiolikos'], 15)
-    add_to_dict(res, ['šešioliktuoju', 'šešiolikos'], 16)
-    add_to_dict(res, ['septynioliktuoju', 'septyniolikos'], 17)
-    add_to_dict(res, ['aštuonioliktuoju', 'aštuoniolikos'], 18)
-    add_to_dict(res, ['devynioliktuoju', 'devyniolikos'], 19)
-    add_to_dict(res, ['dvidešimtuoju'], 20)
-    add_to_dict(res, ['trisdešimtuoju'], 30)
-    add_to_dict(res, ['keturiasdešimtuoju'], 40)
-    add_to_dict(res, ['penkiasdešimtuoju'], 50)
-    add_to_dict(res, ['šešiasdešimtuoju'], 60)
-    add_to_dict(res, ['septyniasdešimtuoju'], 70)
-    add_to_dict(res, ['aštuoniasdešimtuoju'], 80)
-    add_to_dict(res, ['devyniasdešimtuoju'], 90)
-    add_to_dict(res, ["šimtas", "šimtai", 'šimtuoju', 'šimtų', "šimto"], 100)
-    add_to_dict(res, ["tūkstantis", "tūkstančiai", "tūkstančių", 'tūkstantuoju', "tūkstančio"], 1000)
-    add_to_dict(res, ["milijonas", "milijonai", 'milijonu', "milijono"], 1000000)
-
-    for k, v in {'dvidešimt': 20, 'trisdešimt': 30, 'keturiasdešimt': 40, 'penkiasdešimt': 50,
-                 'šešiasdešimt': 60, 'septyniasdešimt': 70, 'aštuoniasdešimt': 80, 'devyniasdešimt': 90}.items():
-        res[k] = v
-    for k, v in {'vienuolika': 11, 'dvylika': 12, 'trylika': 13, 'keturiolika': 14, 'penkiolika': 15,
-                 'šešiolika': 16, 'septyniolika': 17, 'aštuoniolika': 18, 'devyniolika': 19}.items():
-        res[k] = v
-
-    add_to_dict(res, ["plius", 'pridėti', 'atimti', 'minus', 'dalint', 'dalinti', 'dalinta', 'padalint', 'padalinti',
-                      'padalinta', 'dauginti', 'dauginta', 'padauginti', 'padauginta', 'kart',
-                      "pakelta", 'pakelti', 'laipsniu', 'laipsnio',
-                      "iš", "kablelis", "skliaustai", "skliausteliuose", "šaknis", "apskliausta", "sveikas", "sveiki",
-                      "visa", "tai"], 0)
-    return res
 
 
 def add_to_dict(d: Dict, keys: List[str], val: Any):

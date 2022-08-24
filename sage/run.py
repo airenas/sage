@@ -13,7 +13,7 @@ from sage.cfg.grammar import Calculator
 from sage.cfg.parser import ResultParser, EqParser
 from sage.io.socket import SocketIO
 from sage.io.terminal import TerminalInput, TerminalOutput
-from sage.io.voice import VoiceOutput, PCPlayer
+from sage.io.voice import VoiceOutput
 from sage.latex.wrapper import LatexWrapper
 from sage.logger import logger
 from sage.tts.intelektika import IntelektikaTTS
@@ -101,9 +101,12 @@ def main(param):
     else:
         rec = Kaldi(url=args.kaldi_url, msg_func=out_func)
 
+    grammar = Calculator(file="data/calc/grammar.cfg")
+    leaves_map = grammar.leaves_map()
     runner = Runner(
-        bot=CalculatorBot(out_func=out_func, cfg=Calculator(file="data/calc/grammar.cfg"), parser=ResultParser(),
-                          eq_parser=EqParser(), eq_maker=LatexWrapper(url=args.latex_url)),
+        bot=CalculatorBot(out_func=out_func, cfg=grammar, parser=ResultParser(leaves_map=leaves_map),
+                          eq_parser=EqParser(leaves_map=leaves_map),
+                          eq_maker=LatexWrapper(url=args.latex_url)),
         audio_rec=rec)
 
     def in_func(d: Data):
