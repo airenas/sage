@@ -11,9 +11,9 @@ from sage.audio2face.player import A2FPlayer
 from sage.bot import CalculatorBot
 from sage.cfg.grammar import Calculator
 from sage.cfg.parser import ResultParser, EqParser
-from sage.io.socket import SocketIO
-from sage.io.terminal import TerminalInput, TerminalOutput
-from sage.io.voice import VoiceOutput, PCPlayer
+from sage.inout.socket import SocketIO
+from sage.inout.terminal import TerminalInput, TerminalOutput
+from sage.inout.voice import VoiceOutput, PCPlayer
 from sage.latex.wrapper import LatexWrapper
 from sage.logger import logger
 from sage.tts.intelektika import IntelektikaTTS
