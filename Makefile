@@ -25,7 +25,7 @@ install/deps:
 activate:
 	source .venv/bin/activate
 run:
-	LOG_LEVEL=debug python -m sage.run --tts_key $(tts-key) --no-useTerminalIO \
+	LOG_LEVEL=debug python -m sage.run --tts_key $(tts-key) \
 	    --latex_url $(latex-url) \
 	    --a2f_url=$(a2f-url) --a2f_name=$(a2f-name) \
 	    --kaldi_url=$(kaldi-url) $(usePCPlayer)

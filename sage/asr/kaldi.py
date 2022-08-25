@@ -170,6 +170,7 @@ class Kaldi:
             logger.error(err)
 
     def stop(self):
+        logger.debug("stopping kaldi ...")
         self.__audio_queue.put(None)
         self.__txt_queue.put(None)
         with self.cl_lock:

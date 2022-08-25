@@ -44,4 +44,5 @@ class Player:
             logger.error(err)
 
     def stop(self):
+        logger.debug("stopping player...")
         self.__p.terminate()
