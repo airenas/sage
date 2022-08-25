@@ -93,6 +93,8 @@ def main(param):
     parser.add_argument("--a2f_url", nargs='?', default='localhost:50051', help="URL of Audio2Face GRPC server")
     parser.add_argument("--a2f_name", nargs='?', default='SomeFace', help="Name of face instance for Audio2Face")
     parser.add_argument("--port", nargs='?', default=8007, help="Service port for socketio clients")
+    parser.add_argument("--useTerminalIO", default=False, action=argparse.BooleanOptionalAction,
+                        help="Use terminal IO to interact with bot")
     args = parser.parse_args(args=param)
 
     def out_func(d: Data):
@@ -121,16 +123,18 @@ def main(param):
         thread.start()
         workers.append(thread)
 
-    terminal = TerminalInput(msg_func=in_func)
-    threading.Thread(target=terminal.start, daemon=True).start()
+    if args.useTerminalIO:
+        terminal = TerminalInput(msg_func=in_func)
+        threading.Thread(target=terminal.start, daemon=True).start()
+
+        terminal_out = TerminalOutput()
+        runner.add_output_processor(terminal_out.process)
 
     start_thread(rec.start)
 
     ws_service = SocketIO(msg_func=in_func, port=args.port)
     start_thread(ws_service.start)
 
-    terminal_out = TerminalOutput()
-    runner.add_output_processor(terminal_out.process)
     runner.add_output_processor(ws_service.process)
 
     tts = IntelektikaTTS(url="https://sinteze-test.intelektika.lt/synthesis.service/prod/synthesize", key=args.tts_key,

@@ -1,6 +1,8 @@
 -include Makefile.options
 latex-url?=https://sinteze-test.intelektika.lt/latex-renderer/renderLatex
 a2f-url?=localhost:50051
+a2f-name?=/World/audio2face/PlayerStreaming
+kaldi-url?=ws://localhost:9090/client/ws/speech
 #####################################################################################
 version=0.1
 #####################################################################################
@@ -12,6 +14,7 @@ prepare/proto: ./sage/audio2face/proto/audio2face_pb2.py
 	python -m grpc_tools.protoc -I=./ --python_out=./ --grpc_python_out=./ $^
 #####################################################################################
 install/req:
+	# conda create --name sage python=3.10
 	pip install -r requirements.txt
 install/test-req:
 	pip install -r requirements_test.txt
@@ -22,9 +25,10 @@ install/deps:
 activate:
 	source .venv/bin/activate
 run:
-	LOG_LEVEL=debug python -m sage.run --tts_key $(tts-key) --latex_url $(latex-url) --a2f_url=$(a2f-url) \
-	--a2f_name=$(a2f-name)
-# 	--usePCPlayer
+	LOG_LEVEL=debug python -m sage.run --tts_key $(tts-key) --no-useTerminalIO \
+	    --latex_url $(latex-url) \
+	    --a2f_url=$(a2f-url) --a2f_name=$(a2f-name) \
+	    --kaldi_url=$(kaldi-url) $(usePCPlayer)
 
 run/svg:
 	docker run --rm -p 5030:5030 planqk/latex-renderer:v1.2.0
