@@ -43,6 +43,7 @@ class Runner:
                 self.__audio_rec.add(inp.data)
             elif inp.type == DataType.EVENT:
                 logger.debug("got event %s" % inp.data)
+                self.__bot.process_event(inp)
                 self.__audio_rec.event(inp.data)
             else:
                 logger.warning("Don't know what to do with %s data" % inp.type)

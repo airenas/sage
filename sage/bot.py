@@ -1,5 +1,3 @@
-import math
-
 from sage.api.data import Data, DataType, Sender
 from sage.cfg.parser import UnknownLeave
 from sage.logger import logger
@@ -68,3 +66,10 @@ class CalculatorBot:
             self.__out_func(Data(in_type=DataType.TEXT, data="Deja, kažkokia klaida!", who=Sender.BOT))
 
         self.__out_func(Data(in_type=DataType.STATUS, data="waiting"))
+
+    def process_event(self, inp: Data):
+        logger.debug("bot got event %s" % inp.data)
+        if inp.type == DataType.EVENT:
+            if inp.who == Sender.USER and inp.data == "connected":
+                self.__out_func(Data(in_type=DataType.TEXT, data="Labas"))
+                self.__out_func(Data(in_type=DataType.STATUS, data="waiting"))

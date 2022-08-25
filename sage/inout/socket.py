@@ -53,8 +53,7 @@ class SocketIO:
 
     async def connect(self, sid, environ):
         logger.info("connect: %s " % sid)
-        await self.send(Data(in_type=DataType.TEXT, data="Hi"))
-        await self.send(Data(in_type=DataType.STATUS, data="waiting"))
+        self.msg_func(Data(in_type=DataType.EVENT, who=Sender.USER, data="connected"))
 
     async def disconnect(self, sid):
         logger.info("disconnect: %s " % sid)
