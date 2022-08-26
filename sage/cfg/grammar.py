@@ -74,8 +74,7 @@ class Calculator:
                      "sveiki",
                      "vardiklyje", "skliaustuose", "skliausteliai", "atsidaro", "atsidarantys", "atviras",
                      "skliaustelis", "užsidaro", "uždaras", "apskliausti", "šaknies", "šaknys", "pošaknyje",
-                     "trupmena", "skaitiklyje", "ir", "antrųjų",
-                     "visa", "tai"], 0)
+                     "trupmena", "skaitiklyje", "ir", "visa", "tai"], 0)
         for l in leaves:
             if l not in res:
                 v = try_get_value(prefixes, l)

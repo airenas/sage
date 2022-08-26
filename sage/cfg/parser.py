@@ -290,7 +290,7 @@ def process_simtai(nodes: List[ResultNode]) -> Any:
         return nodes[0].value
     if (len(nodes)) == 3:
         return nodes[0].value * nodes[1].value + nodes[2].value
-    if nodes[0].name == "SIMTAS":
+    if nodes[0].name in ("SIMTAS", "SIMTASSHAK", "SIMTASLPS"):
         return nodes[0].value + nodes[1].value
     else:
         return nodes[0].value * nodes[1].value
@@ -345,7 +345,7 @@ def process_tukst(nodes: List[ResultNode]) -> Any:
         return nodes[0].value
     if (len(nodes)) == 3:
         return nodes[0].value * nodes[1].value + nodes[2].value
-    if nodes[0].name == "TUKSTANTIS":
+    if nodes[0].name in ("TUKSTANTIS", "TUKSTANTISSHAK", "TUKSTANTISLPS"):
         return nodes[0].value + nodes[1].value
     else:
         return nodes[0].value * nodes[1].value
@@ -356,7 +356,7 @@ def process_sveikas(nodes: List[ResultNode]) -> Any:
         return nodes[0].value
     if (len(nodes)) == 3:
         return nodes[0].value * nodes[1].value + nodes[2].value
-    if nodes[0].name == "MILIJONAS":
+    if nodes[0].name in ("MILIJONAS", "MILIJONASSHAK", "MILIJONASLPS"):
         return nodes[0].value + nodes[1].value
     else:
         return nodes[0].value * nodes[1].value

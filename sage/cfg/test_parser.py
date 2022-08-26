@@ -5,7 +5,8 @@ from sage.cfg.parser import ResultParser, EqParser
 
 
 @pytest.mark.parametrize("txt,exp",
-                         [("du", "2"),
+                         [("šaknis iš tūkstančio dvidešimt keturių", "32"),
+                          ("du", "2"),
                           ("du penktuoju laipsniu", "32"),
                           ("du pakelta trečiuoju", "8"),
                           ("du minus penktuoju laipsniu", "0.03125"),
@@ -46,7 +47,7 @@ from sage.cfg.parser import ResultParser, EqParser
                           ("dvylika plius šešiasdešimt penki apskliausta pakelta trečiuoju", "456533"),
                           ("šaknis iš šešiolikos plius du", "6"),
                           ("šaknis iš dvylika plius keturi", "4"),
-                          ("du dalinti iš du pakelti laipsniu penki", "0.0625")
+                          ("du dalinti iš du pakelti laipsniu penki", "0.0625"),
                           ])
 class TestResultParser:
     @classmethod
