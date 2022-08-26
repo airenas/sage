@@ -1,4 +1,5 @@
 from sage.api.data import Data, DataType, Sender
+from sage.cfg.grammar import UnknownWord
 from sage.cfg.parser import UnknownLeave
 from sage.logger import logger
 
@@ -60,7 +61,15 @@ class CalculatorBot:
                 self.__out_func(Data(in_type=DataType.TEXT_RESULT, data=round_number(res), who=Sender.BOT))
         except UnknownLeave as err:
             logger.error(err)
-            self.__out_func(Data(in_type=DataType.TEXT, data="Nežinau žodžio %s" % err.string, who=Sender.BOT))
+            self.__out_func(Data(in_type=DataType.TEXT, data="Nežinau žodžio '%s'" % err.string, who=Sender.BOT))
+        except UnknownWord as err:
+            logger.error(err)
+            if err.word == "<unk>":
+                self.__out_func(
+                    Data(in_type=DataType.TEXT, data="Pasakėte kažkokį nežinomą žodį", who=Sender.BOT))
+            else:
+                self.__out_func(
+                    Data(in_type=DataType.TEXT, data="Nežinau ką daryti su žodžiu '%s'" % err.word, who=Sender.BOT))
         except BaseException as err:
             logger.error(err)
             self.__out_func(Data(in_type=DataType.TEXT, data="Deja, kažkokia klaida!", who=Sender.BOT))

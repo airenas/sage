@@ -3,7 +3,17 @@ from typing import Dict, List, Any
 
 import nltk
 
+from sage.cfg.parser import ParseError
 from sage.logger import logger
+
+
+class UnknownWord(ParseError):
+    """Raised when the word is unknown to the grammar"""
+
+    def __init__(self, word):
+        self.message = "Unknown word `%s`" % word
+        self.word = word
+        super().__init__(self.message)
 
 
 def get_leaves(grammar):
@@ -23,6 +33,15 @@ def try_get_value(dic, l):
             return k
     logger.debug("Unknown leave: %s" % l)
     return 0
+
+
+def extract_unknown_word(param: str) -> str | None:
+    st = 'Grammar does not cover some of the input words'
+    if param.startswith(st):
+        res = param[len(st):]
+        res = res.strip("\"'. :")
+        return res
+    return None
 
 
 class Calculator:
@@ -85,6 +104,12 @@ class Calculator:
         logger.debug("got %s " % txt)
         try:
             res = list(self.__parser.parse(txt.split()))
+        except ValueError as err:
+            w = extract_unknown_word(str(err))
+            if w:
+                raise UnknownWord(w)
+            logger.critical(err, exc_info=True)
+            return None, False
         except BaseException as err:
             logger.critical(err, exc_info=True)
             return None, False
