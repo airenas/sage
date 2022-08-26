@@ -18,8 +18,8 @@ def round_number(num):
         return "praktiškai nulis"
 
     # truncate last number after comma
-    def truncate(num):
-        res = str(num)
+    def truncate(_num):
+        res = str(_num)
         dp = res.find('.')
         if dp > -1 and len(res) > dp + 4:
             res = res[:dp + 4]
@@ -42,7 +42,7 @@ class CalculatorBot:
     def process(self, txt: str):
         logger.debug("got %s " % txt)
         self.__out_func(Data(in_type=DataType.STATUS, data="thinking"))
-        ## resend input to user
+        # resend input to user
         self.__out_func(Data(in_type=DataType.TEXT, data=txt, who=Sender.USER))
         try:
             tree, ok = self.__cfg.parse(txt)

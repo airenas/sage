@@ -27,11 +27,11 @@ def get_leaves(grammar):
     return res
 
 
-def try_get_value(dic, l):
+def try_get_value(dic, leave):
     for v, k in dic.items():
-        if l.startswith(v):
+        if leave.startswith(v):
             return k
-    logger.debug("Unknown leave: %s" % l)
+    logger.debug("Unknown leave: %s" % leave)
     return 0
 
 
@@ -94,10 +94,10 @@ class Calculator:
                      "vardiklyje", "skliaustuose", "skliausteliai", "atsidaro", "atsidarantys", "atviras",
                      "skliaustelis", "užsidaro", "uždaras", "apskliausti", "šaknies", "šaknys", "pošaknyje",
                      "trupmena", "skaitiklyje", "ir", "visa", "tai"], 0)
-        for l in leaves:
-            if l not in res:
-                v = try_get_value(prefixes, l)
-                res[l] = v
+        for leave in leaves:
+            if leave not in res:
+                v = try_get_value(prefixes, leave)
+                res[leave] = v
         return res
 
     def parse(self, txt: str):

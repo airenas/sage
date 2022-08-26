@@ -11,11 +11,11 @@ def test_unknown_word():
 def test_parse():
     cfg = Calculator(file="data/calc/grammar.cfg")
     tree, ok = cfg.parse("du")
-    assert True == ok
+    assert ok
     assert tree is not None
 
     tree, ok = cfg.parse("du plius")
-    assert True == ok
+    assert ok
     assert tree is None
 
 

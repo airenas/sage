@@ -37,7 +37,7 @@ class Player:
             logger.debug("play %d data array" % len(data))
             stream = self.__p.open(format=pyaudio.paInt16, channels=1, rate=self.rate, output=True)
             stream.write(data)
-            stream.stop_stream();
+            stream.stop_stream()
             stream.close()
             logger.debug("play %d data array" % len(data))
         except BaseException as err:

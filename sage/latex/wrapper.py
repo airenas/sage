@@ -10,7 +10,8 @@ class LatexWrapper:
         self.__url = url
 
     def prepare(self, txt: str) -> bytes:
-        # curl -X POST localhost:5030/renderLatex -H "content-type:application/json" -d '{"content":"\\begin{math} \\frac{2 + 2}{6} \\end{math}","latexPackages":[],"output":"svg"}'  -o out.svg
+        # curl -X POST localhost:5030/renderLatex -H "content-type:application/json" \
+        # -d '{"content":"\\begin{math} \\frac{2 + 2}{6} \\end{math}","latexPackages":[],"output":"svg"}'  -o out.svg
         eq = "\\pagecolor{gray}\n\\color{white}\n\\begin{math} %s \\end{math}" % txt
         in_data = {'content': eq, 'latexPackages': ['\\usepackage{xcolor}'], 'output': 'svg'}
         x = requests.post(self.__url, json=in_data)

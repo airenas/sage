@@ -14,9 +14,9 @@ class FakeServicer(audio2face_pb2_grpc.Audio2FaceServicer):
         logger.info("Init servicer")
 
     def PushAudio(self, request, context):
-        instance_name = request.instance_name
+        # instance_name = request.instance_name
         samplerate = request.samplerate
-        block_until_playback_is_finished = request.block_until_playback_is_finished
+        # block_until_playback_is_finished = request.block_until_playback_is_finished
         audio_data = str(request.audio_data)
         logger.info("data: %d, rate: %d" % (audio_data, samplerate))
         return audio2face_pb2.PushAudioResponse(success=True, message="")
@@ -30,9 +30,8 @@ class FakeServicer(audio2face_pb2_grpc.Audio2FaceServicer):
         instance_name = first_item.start_marker.instance_name
         samplerate = first_item.start_marker.samplerate
         block_until_playback_is_finished = first_item.start_marker.block_until_playback_is_finished
-        logger.info("PushAudioStream request: [instance_name = {} ; samplerate = {}; block = {}]".format(instance_name,
-                                                                                                         samplerate,
-                                                                                                         block_until_playback_is_finished))
+        logger.info("PushAudioStream request: [instance_name = {} ; samplerate = {}; block = {}]"
+                    .format(instance_name, samplerate, block_until_playback_is_finished))
 
         def float_to_pcm16(audio):
             ints = (audio * (1 << 15)).astype(np.int16)

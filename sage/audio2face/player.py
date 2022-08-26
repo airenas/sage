@@ -13,8 +13,9 @@ def pydub_to_np(audio: AudioSegment) -> (np.ndarray, int):
     where each value is in range [-1.0, 1.0].
     Returns tuple (audio_np_array, sample_rate).
     """
-    return np.array(audio.get_array_of_samples(), dtype=np.float32).reshape((-1, audio.channels)) / (
-            1 << (8 * audio.sample_width - 1)), audio.frame_rate
+    max_v = 1 << (8 * audio.sample_width - 1)
+    return np.array(audio.get_array_of_samples(),
+                    dtype=np.float32).reshape((-1, audio.channels)) / max_v, audio.frame_rate
 
 
 class A2FPlayer:

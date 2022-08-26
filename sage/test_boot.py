@@ -1,5 +1,7 @@
 import pytest
 
+from sage.bot import round_number
+
 
 @pytest.mark.parametrize("txt,exp",
                          [
@@ -22,6 +24,3 @@ class TestRound:
     def test_round(self, txt, exp):
         res = round_number(txt)
         assert res == exp
-
-
-from sage.bot import round_number
