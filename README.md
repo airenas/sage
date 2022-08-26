@@ -33,7 +33,7 @@ make test
 
 ## Running
 
-1. Star the bot:
+1. Start the bot:
 
 ```sh
 make run
