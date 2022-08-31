@@ -46,7 +46,7 @@ class Runner:
                 self.__bot.process_event(inp)
                 self.__audio_rec.event(inp.data)
             else:
-                logger.warning("Don't know what to do with %s data" % inp.type)
+                logger.warning("Don't know what to do with %s - %s" % (inp.type, inp.data))
         th_out.join()
         logger.debug("Exit run loop")
 
@@ -75,6 +75,9 @@ class Runner:
         if d.type == DataType.TEXT_RESULT and d.who == Sender.RECOGNIZER:
             logger.debug("resend recognized text as user input")
             self.add_input(Data(in_type=DataType.TEXT, who=Sender.USER, data=d.data))
+        if d.type == DataType.EVENT and d.who == Sender.RECOGNIZER:
+            logger.debug("resend recognizer events")
+            self.add_input(Data(in_type=DataType.EVENT, who=Sender.RECOGNIZER, data=d.data))
 
 
 def main(param):
