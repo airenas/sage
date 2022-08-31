@@ -159,6 +159,7 @@ def main(param):
         exit_c = exit_c + 1
 
     signal.signal(signal.SIGINT, stop_runner)
+    signal.signal(signal.SIGTERM, stop_runner)
 
     runner.start()
     for w in workers:
