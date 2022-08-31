@@ -87,9 +87,9 @@ class CalculatorBot:
                 self.__out_func(Data(in_type=DataType.STATUS, data="waiting"))
             elif inp.who == Sender.RECOGNIZER:
                 if inp.data == "listen":
-                    self.__send_status("rec.listen")
+                    self.__send_status("rec_listen")
                 elif inp.data == "failed":
-                    self.__send_status("rec.failed")
+                    self.__send_status("rec_failed")
                     self.__schedule_status_restore()
                 elif inp.data == "stopped":
                     self.__send_status("waiting")
