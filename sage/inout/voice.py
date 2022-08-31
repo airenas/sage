@@ -30,7 +30,7 @@ class VoiceOutput:
                     self.player.play(song)
                 except BaseException as err:
                     logger.error(err)
-        elif d.type == DataType.STATUS or d.type == DataType.SVG:
+        elif d.type == DataType.STATUS or d.type == DataType.SVG or d.who == Sender.RECOGNIZER:
             pass
         else:
-            logger.warning("Don't know what to do with %s data" % d.type)
+            logger.warning("Don't know what to do with %s - %s" % (d.type, d.data))

@@ -48,8 +48,10 @@ class SocketIO:
             await self.sio.emit('message',
                                 {"type": d.type.to_str(), "data": str(d.data), "data2": str(d.data2),
                                  "who": d.who.to_str(), "id": d.id})
+        elif d.who == Sender.RECOGNIZER:
+            pass
         else:
-            logger.warning("Don't know what to do with %s data" % d.type)
+            logger.warning("Don't know what to do with %s - %s" % (d.type, d.data))
 
     async def connect(self, sid, environ):
         logger.info("connect: %s " % sid)

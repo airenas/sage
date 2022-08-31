@@ -82,3 +82,10 @@ class CalculatorBot:
             if inp.who == Sender.USER and inp.data == "connected":
                 self.__out_func(Data(in_type=DataType.TEXT, data="Labas"))
                 self.__out_func(Data(in_type=DataType.STATUS, data="waiting"))
+            elif inp.who == Sender.RECOGNIZER:
+                if inp.data == "listen":
+                    self.__out_func(Data(in_type=DataType.STATUS, data="rec.listen"))
+                elif inp.data == "failed":
+                    self.__out_func(Data(in_type=DataType.STATUS, data="rec.failed"))
+                elif inp.data == "stopped":
+                    self.__out_func(Data(in_type=DataType.STATUS, data="waiting"))

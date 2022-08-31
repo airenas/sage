@@ -10,7 +10,7 @@ from sage.logger import logger
 
 
 class WsClient:
-    def __init__(self, url, text_method):
+    def __init__(self, url, text_method, event_method):
         self.ws_conn = websocket.WebSocketApp(url,
                                               on_open=self.on_open,
                                               on_message=self.on_message,
@@ -19,7 +19,9 @@ class WsClient:
         self.ws = None
         self.__audio_queue: queue.Queue[bytes] = queue.Queue(maxsize=500)
         self.__text_method = text_method
+        self.__event_method = event_method
         self.hyps = []
+        self.failed = False
 
         def start_conn():
             self.ws_conn.run_forever()
@@ -49,9 +51,10 @@ class WsClient:
             if 'message' in response:
                 logger.error("Error message:", response['message'])
 
-    @staticmethod
-    def on_error(ws, err):
+    def on_error(self, ws, err):
         logger.error("Kaldi ws conn error:", err)
+        self.__event_method("failed")
+        self.failed = True
 
     def on_open(self, ws):
         logger.info("connected to kaldi ws")
@@ -66,11 +69,15 @@ class WsClient:
                 self.ws.send(data, opcode=websocket.ABNF.OPCODE_BINARY)
             logger.debug("exit send thread")
 
+        self.failed = False
+        self.__event_method("listen")
         threading.Thread(target=send_data_to_ws).start()
 
     def on_close(self, ws, close_status_code, close_msg):
         logger.debug("closed ws kaldi connection")
         self.__audio_queue.put(None)
+        if not self.failed:
+            self.__event_method("stopped")
         txt = self.get_text("")
         if txt:
             self.__text_method(True, txt)
@@ -124,10 +131,11 @@ class Kaldi:
                 if self.client is not None:
                     self.client.close()
                 try:
-                    self.client = WsClient(url=self.url, text_method=self.__process_kaldi_msg)
+                    self.client = WsClient(url=self.url, text_method=self.__process_kaldi_msg,
+                                           event_method=self.__process_events)
                 except BaseException as err:
                     logger.error(err)
-        else:
+        elif data == "AUDIO_STOP":
             self.working = False
             with self.cl_lock:
                 if self.client is not None:
@@ -156,6 +164,9 @@ class Kaldi:
 
     def __process_kaldi_msg(self, final, txt):
         self.__txt_queue.put((final, txt))
+
+    def __process_events(self, event):
+        self.msg_func(Data(in_type=DataType.EVENT, who=Sender.RECOGNIZER, data=event))
 
     def __process_recognized(self, data):
         try:

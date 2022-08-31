@@ -25,5 +25,7 @@ class TerminalOutput:
             print("%s: %s" % (d.who, d.data))
         elif d.type == DataType.SVG:
             print("%s" % (d.who))
+        elif d.type == DataType.EVENT and d.who == Sender.RECOGNIZER:
+            print("event %s: %s" % (d.who, d.data))
         else:
-            logger.warning("Don't know what to do with %s data" % d.type)
+            logger.warning("Don't know what to do with %s - %s" % (d.type, d.data))
