@@ -86,9 +86,9 @@ def main(param):
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--tts_key", nargs='?', default='intelektika', help="TTS key")
-    parser.add_argument("--useAudioPlayer", default=False, action=argparse.BooleanOptionalAction,
+    parser.add_argument("--use_audio_player", default=False, action=argparse.BooleanOptionalAction,
                         help="Use audio player for audio input data processing")
-    parser.add_argument("--usePCPlayer", default=False, action=argparse.BooleanOptionalAction,
+    parser.add_argument("--use_pc_player", default=False, action=argparse.BooleanOptionalAction,
                         help="output audio to PC instead of Audio2Face")
     parser.add_argument("--latex_url", nargs='?', default='http://localhost:5030/renderLatex',
                         help="URL of Latex equation maker")
@@ -97,12 +97,14 @@ def main(param):
     parser.add_argument("--a2f_url", nargs='?', default='localhost:50051', help="URL of Audio2Face GRPC server")
     parser.add_argument("--a2f_name", nargs='?', default='SomeFace', help="Name of face instance for Audio2Face")
     parser.add_argument("--port", nargs='?', default=8007, help="Service port for socketio clients")
+    parser.add_argument("--greet_on_connect", default=True, action=argparse.BooleanOptionalAction,
+                        help="do greet client on connecting")
     args = parser.parse_args(args=param)
 
     def out_func(d: Data):
         runner.add_output(d)
 
-    if args.useAudioPlayer:
+    if args.use_audio_player:
         rec = Player()
     else:
         rec = Kaldi(url=args.kaldi_url, msg_func=out_func)
@@ -112,7 +114,7 @@ def main(param):
     runner = Runner(
         bot=CalculatorBot(out_func=out_func, cfg=grammar, parser=ResultParser(leaves_map=leaves_map),
                           eq_parser=EqParser(leaves_map=leaves_map),
-                          eq_maker=LatexWrapper(url=args.latex_url)),
+                          eq_maker=LatexWrapper(url=args.latex_url), greet_on_connect=args.greet_on_connect),
         audio_rec=rec)
 
     def in_func(d: Data):
@@ -139,7 +141,7 @@ def main(param):
 
     tts = IntelektikaTTS(url="https://sinteze-test.intelektika.lt/synthesis.service/prod/synthesize", key=args.tts_key,
                          voice="laimis")
-    if args.usePCPlayer:
+    if args.use_pc_player:
         player = PCPlayer()
     else:
         player = A2FPlayer(url=args.a2f_url, face_name=args.a2f_name)

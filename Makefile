@@ -3,6 +3,7 @@ latex-url?=https://sinteze-test.intelektika.lt/latex-renderer/renderLatex
 a2f-url?=localhost:50051
 a2f-name?=/World/audio2face/PlayerStreaming
 kaldi-url?=ws://localhost:9090/client/ws/speech
+greetOnConnect?=--no-greet_on_connect
 #####################################################################################
 version=0.1
 #####################################################################################
@@ -28,7 +29,7 @@ run:
 	LOG_LEVEL=debug python -m sage.run --tts_key $(tts-key) \
 	    --latex_url $(latex-url) \
 	    --a2f_url=$(a2f-url) --a2f_name=$(a2f-name) \
-	    --kaldi_url=$(kaldi-url) $(usePCPlayer)
+	    --kaldi_url=$(kaldi-url) $(usePCPlayer) $(greetOnConnect)
 
 run/svg:
 	docker run --rm -p 5030:5030 planqk/latex-renderer:v1.2.0

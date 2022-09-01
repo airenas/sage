@@ -33,7 +33,7 @@ def round_number(num):
 
 
 class CalculatorBot:
-    def __init__(self, cfg, parser, eq_maker, eq_parser, out_func):
+    def __init__(self, cfg, parser, eq_maker, eq_parser, out_func, greet_on_connect: bool = True):
         self.__eq_parser = eq_parser
         self.__cfg = cfg
         self.__out_func = out_func
@@ -41,6 +41,7 @@ class CalculatorBot:
         self.__eq_maker = eq_maker
         self.__status_timer = None
         self.__timer_lock = threading.Lock()
+        self.__greet_on_connect = greet_on_connect
         logger.info("Init CalculateBot")
 
     def process(self, txt: str):
@@ -83,7 +84,9 @@ class CalculatorBot:
         logger.debug("bot got event %s" % inp.data)
         if inp.type == DataType.EVENT:
             if inp.who == Sender.USER and inp.data == "connected":
-                self.__out_func(Data(in_type=DataType.TEXT, data="Labas"))
+                if self.__greet_on_connect:
+                    self.__out_func(Data(in_type=DataType.STATUS, data="saying"))
+                    self.__out_func(Data(in_type=DataType.TEXT, data="Labas"))
                 self.__out_func(Data(in_type=DataType.STATUS, data="waiting"))
             elif inp.who == Sender.RECOGNIZER:
                 if inp.data == "listen":
@@ -104,7 +107,7 @@ class CalculatorBot:
 
         self.__stop_timer()
         with self.__timer_lock:
-            self.__status_timer = threading.Timer(10.0, after)
+            self.__status_timer = threading.Timer(5.0, after)
             self.__status_timer.start()
 
     def __stop_timer(self):
