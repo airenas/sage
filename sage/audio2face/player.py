@@ -51,7 +51,7 @@ class A2FPlayer:
                 yield audio2face_pb2.PushAudioStreamRequest(audio_data=chunk.tobytes())
 
         request_generator = make_generator()
-        response = stub.PushAudioStream(request_generator)
+        response = stub.PushAudioStream(request_generator, timeout=15)
         if response.success:
             logger.info("audio was sent")
         else:
