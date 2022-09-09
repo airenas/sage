@@ -7,17 +7,21 @@ from sage.logger import logger
 
 
 def round_number(num):
+    """
+        round a number for speaking out loud.
+        :return:
+            - number/text
+            - indicator if the output needs to be converted to text
+        """
     value = float(num)
     if value == round(value):
         if value > 1000000000:
-            return "labai didelis skaičius"
+            return "labai didelis skaičius", False
         if value < -1000000000:
-            return "labai didelis neigiamas skaičius"
-        if value < 0:
-            return "minus %s" % str(round(-value))
-        return str(round(value))
+            return "labai didelis neigiamas skaičius", False
+        return str(round(value)), True
     if abs(value) < 0.001:
-        return "praktiškai nulis"
+        return "praktiškai nulis", False
 
     # truncate last number after comma
     def truncate(_num):
@@ -27,13 +31,12 @@ def round_number(num):
             res = res[:dp + 4]
         return res.rstrip("0")
 
-    if value < 0:
-        return "minus %s" % truncate(-value)
-    return truncate(value)
+    return truncate(value), True
 
 
 class CalculatorBot:
-    def __init__(self, cfg, parser, eq_maker, eq_parser, out_func, greet_on_connect: bool = True):
+    def __init__(self, cfg, parser, eq_maker, eq_parser, out_func, number_to_text_changer,
+                 greet_on_connect: bool = True):
         self.__eq_parser = eq_parser
         self.__cfg = cfg
         self.__out_func = out_func
@@ -42,6 +45,7 @@ class CalculatorBot:
         self.__status_timer = None
         self.__timer_lock = threading.Lock()
         self.__greet_on_connect = greet_on_connect
+        self.__number_to_text_changer = number_to_text_changer
         logger.info("Init CalculateBot")
 
     def process(self, txt: str):
@@ -63,7 +67,7 @@ class CalculatorBot:
                 eq_svg = self.__eq_maker.prepare(eq_res)
                 self.__send_status("saying")
                 self.__out_func(Data(in_type=DataType.SVG, data=eq_svg, who=Sender.BOT, data2=res))
-                self.__out_func(Data(in_type=DataType.TEXT_RESULT, data=round_number(res), who=Sender.BOT))
+                self.__out_func(Data(in_type=DataType.TEXT_RESULT, data=self.number_as_text(res), who=Sender.BOT))
         except UnknownLeave as err:
             logger.error(err)
             self.__send_status("saying")
@@ -119,3 +123,9 @@ class CalculatorBot:
             if self.__status_timer:
                 self.__status_timer.cancel()
                 self.__status_timer = None
+
+    def number_as_text(self, num):
+        n_num, change = round_number(num)
+        if change:
+            return self.__number_to_text_changer.convert(n_num)
+        return n_num

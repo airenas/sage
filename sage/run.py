@@ -16,6 +16,7 @@ from sage.inout.terminal import TerminalInput, TerminalOutput
 from sage.inout.voice import VoiceOutput, PCPlayer
 from sage.latex.wrapper import LatexWrapper
 from sage.logger import logger
+from sage.number2text.replacer import Replacer
 from sage.tts.intelektika import IntelektikaTTS
 
 
@@ -94,6 +95,9 @@ def main(param):
                         help="URL of Latex equation maker")
     parser.add_argument("--kaldi_url", nargs='?', default='ws://localhost:9090/client/ws/speech',
                         help="URL of Kaldi Online wrapper")
+    parser.add_argument("--number_to_text_url", nargs='?',
+                        default='https://sinteze-test.intelektika.lt/number-replacer/num2text',
+                        help="URL of Number Replace service")
     parser.add_argument("--a2f_url", nargs='?', default='localhost:50051', help="URL of Audio2Face GRPC server")
     parser.add_argument("--a2f_name", nargs='?', default='SomeFace', help="Name of face instance for Audio2Face")
     parser.add_argument("--port", nargs='?', default=8007, help="Service port for socketio clients")
@@ -114,7 +118,9 @@ def main(param):
     runner = Runner(
         bot=CalculatorBot(out_func=out_func, cfg=grammar, parser=ResultParser(leaves_map=leaves_map),
                           eq_parser=EqParser(leaves_map=leaves_map),
-                          eq_maker=LatexWrapper(url=args.latex_url), greet_on_connect=args.greet_on_connect),
+                          eq_maker=LatexWrapper(url=args.latex_url),
+                          number_to_text_changer=Replacer(url=args.number_to_text_url),
+                          greet_on_connect=args.greet_on_connect),
         audio_rec=rec)
 
     def in_func(d: Data):
