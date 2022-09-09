@@ -14,7 +14,7 @@ class LatexWrapper:
         # -d '{"content":"\\begin{math} \\frac{2 + 2}{6} \\end{math}","latexPackages":[],"output":"svg"}'  -o out.svg
         eq = "\\pagecolor{gray}\n\\color{white}\n\\begin{math} %s \\end{math}" % txt
         in_data = {'content': eq, 'latexPackages': ['\\usepackage{xcolor}'], 'output': 'svg'}
-        x = requests.post(self.__url, json=in_data)
+        x = requests.post(self.__url, json=in_data, timeout=10)
         if x.status_code != 200:
             raise Exception("Can't prepare equation image")
         return x.text
