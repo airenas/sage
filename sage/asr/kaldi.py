@@ -11,6 +11,7 @@ from sage.logger import logger
 
 class WsClient:
     def __init__(self, url, text_method, event_method):
+        websocket.setdefaulttimeout(15)
         self.ws_conn = websocket.WebSocketApp(url,
                                               on_open=self.on_open,
                                               on_message=self.on_message,
