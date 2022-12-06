@@ -11,7 +11,11 @@ Python >= 3.10
 ## Installation
 
 1. Create and activate new environment
-2. Install dependencies:
+2. Install pyaudio
+```sh
+   sudo apt-get install portaudio19-dev python3-pyaudio
+```   
+3. Install dependencies:
 
 ```sh
 pip install -r requirements.txt
