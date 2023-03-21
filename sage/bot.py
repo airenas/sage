@@ -82,6 +82,10 @@ class CalculatorBot:
                 self.__send_status("saying")
                 self.__out_func(
                     Data(in_type=DataType.TEXT, data="Nežinau ką daryti su žodžiu '%s'" % err.word, who=Sender.BOT))
+        except ZeroDivisionError as err:
+            logger.error(err)
+            self.__send_status("saying")
+            self.__out_func(Data(in_type=DataType.TEXT, data="Negaliu dalinti iš nulio", who=Sender.BOT))
         except BaseException as err:
             logger.error(err)
             self.__send_status("saying")
