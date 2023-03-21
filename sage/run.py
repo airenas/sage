@@ -98,6 +98,9 @@ def main(param):
     parser.add_argument("--number_to_text_url", nargs='?',
                         default='https://sinteze-test.intelektika.lt/number-replacer/num2text',
                         help="URL of Number Replace service")
+    parser.add_argument("--tts_url", nargs='?',
+                        default='https://sinteze.intelektika.lt/synthesis.service/prod/synthesize',
+                        help="URL of TTS service")
     parser.add_argument("--a2f_url", nargs='?', default='localhost:50051', help="URL of Audio2Face GRPC server")
     parser.add_argument("--a2f_name", nargs='?', default='SomeFace', help="Name of face instance for Audio2Face")
     parser.add_argument("--port", nargs='?', default=8007, help="Service port for socketio clients")
@@ -145,7 +148,7 @@ def main(param):
 
     runner.add_output_processor(ws_service.process)
 
-    tts = IntelektikaTTS(url="https://sinteze-test.intelektika.lt/synthesis.service/prod/synthesize", key=args.tts_key,
+    tts = IntelektikaTTS(url=args.tts_url, key=args.tts_key,
                          voice="laimis")
     if args.use_pc_player:
         player = PCPlayer()

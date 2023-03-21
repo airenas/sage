@@ -29,6 +29,7 @@ run:
 	LOG_LEVEL=debug python -m sage.run --tts_key $(tts-key) \
 	    --latex_url $(latex-url) \
 	    --a2f_url=$(a2f-url) --a2f_name=$(a2f-name) \
+	    --tts_url=$(tts-url) \
 	    --kaldi_url=$(kaldi-url) $(usePCPlayer) $(greetOnConnect)
 
 run/svg:
