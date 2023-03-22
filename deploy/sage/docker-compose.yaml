@@ -1,0 +1,28 @@
+version: '3.8'
+
+x-logging:
+  &default-logging
+  options:
+    max-size: '20m'
+    max-file: '3'
+  driver: json-file  
+
+services:
+  sage:
+    image: airenas/sage:${SAGE_VERSION}
+    container_name: sage
+    logging: *default-logging
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8007:8007"
+    command: -m sage.run --tts_key ${TTS_KEY} --latex_url ${LATEX_URL} --a2f_url=${A2F_URL} --a2f_name=${A2F_NAME} --tts_url=${TTS_URL} --kaldi_url=ws://kaldi:80/client/ws/speech
+    environment:
+     - LOG_LEVEL=debug
+
+  kaldi:
+    image: intelektikalt/docker-kaldi-calc:0.1.1
+    container_name: kaldi
+    logging: *default-logging
+    restart: unless-stopped
