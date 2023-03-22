@@ -36,7 +36,7 @@ run/svg:
 	docker run --rm -p 5030:5030 planqk/latex-renderer:v1.2.0
 
 run/kaldi:
-	docker run -it --rm -p 9090:80 intelektikalt/docker-kaldi-calc:0.1.1
+	docker run -it -p 9090:80 --restart unless-stopped intelektikalt/docker-kaldi-calc:0.1.1
 
 run/fake-a2f:
 	LOG_LEVEL=debug python -m sage.audio2face.samples.server
